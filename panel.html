@@ -1,4 +1,4 @@
-          <!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -27,12 +27,14 @@
         .mensaje {padding:1rem; border-radius:8px; margin:1rem 0; text-align:center; font-weight:bold;}
         .exito {background:#16a34a; color:white;}
         .aviso {background:#f59e0b; color:#000;}
-        .clave-input {max-width:300px; margin:2rem auto; display:block;}
-        .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem;}
+        .clave-input {max-width:350px; margin:3rem auto; display:block;}
+        .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem; text-align:center;}
+        .btn-whatsapp {background:#25d363; color:white; margin-top:1rem;}
     </style>
 </head>
 <body>
 
+    <!-- 🔐 PANTALLA DE CLAVE -->
     <div id="pantallaClave" class="contenedor">
         <header>
             <h1>🔐 PANEL DE CONTROL</h1>
@@ -42,10 +44,12 @@
             <h2 style="text-align:center;">🔑 Ingresa tu clave</h2>
             <input type="password" id="inputClave" placeholder="Escribe tu clave secreta">
             <button class="btn-amarillo" onclick="verificarClave()">🔓 Entrar al Panel</button>
-            <p class="instruccion" style="text-align:center; margin-top:1rem;">💡 Tu clave por defecto: <strong>admin123</strong></p>
+            <button class="btn-whatsapp" onclick="localStorage.clear(); location.reload();">🔄 Restablecer si olvidaste tu clave</button>
+            <p class="instruccion">💡 Clave por defecto: <strong>admin123</strong><br>Puedes cambiarla en el código cuando quieras</p>
         </div>
     </div>
 
+    <!-- 📊 PANEL DE CONTROL -->
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
@@ -54,8 +58,10 @@
         </header>
 
         <div class="contenedor">
+            <!-- ✅ MENSAJE DE CONFIRMACIÓN -->
             <div id="mensaje" class="mensaje oculto"></div>
 
+            <!-- ➕ AGREGAR PRODUCTO -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
@@ -64,13 +70,15 @@
                 <button class="btn-verde" onclick="agregarProducto()">💾 Guardar Producto</button>
             </div>
 
+            <!-- 📦 LISTA DE PRODUCTOS -->
             <div class="caja">
                 <h2>📦 Mis Productos (<span id="contador">0</span>)</h2>
                 <div id="listaProductos">
-                    <p style="color:#94a3b8; text-align:center; padding:1rem;">Cargando productos...</p>
+                    <p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No tienes productos aún. Agrega el primero arriba 👆</p>
                 </div>
             </div>
 
+            <!-- 💾 COPIA DE SEGURIDAD -->
             <div class="caja">
                 <h2>💾 Copia de Seguridad</h2>
                 <button class="btn-amarillo" onclick="exportarDatos()">📤 Exportar / Guardar Todo</button>
@@ -81,12 +89,15 @@
     </div>
 
     <script>
+        // 🔐 CONFIGURACIÓN
         const CLAVE_SECRETA = "admin123";
         const CLAVE_STORAGE = "fullinyeccion_clave";
         const PRODUCTOS_STORAGE = "fullinyeccion_productos";
+        const NUMERO_WHATSAPP = "573167188394"; // ✅ Tu número ya configurado
 
         let productos = [];
 
+        // 🔐 Verificar clave
         function verificarClave() {
             const claveIngresada = document.getElementById('inputClave').value;
             if (claveIngresada === CLAVE_SECRETA) {
@@ -96,15 +107,17 @@
                 cargarProductos();
                 mostrarMensaje("✅ ¡Bienvenido! Panel de control listo", "exito");
             } else {
-                mostrarMensaje("❌ Clave incorrecta — intenta de nuevo", "aviso");
+                mostrarMensaje("❌ Clave incorrecta — toca 'Restablecer' y vuelve a intentar", "aviso");
             }
         }
 
+        // 🚪 Cerrar sesión
         function cerrarSesion() {
             localStorage.removeItem(CLAVE_STORAGE);
             location.reload();
         }
 
+        // ✅ Mostrar mensaje
         function mostrarMensaje(texto, tipo) {
             const caja = document.getElementById('mensaje');
             caja.textContent = texto;
@@ -113,17 +126,20 @@
             setTimeout(() => caja.classList.add('oculto'), 3000);
         }
 
+        // 📦 Cargar productos guardados
         function cargarProductos() {
             const guardados = localStorage.getItem(PRODUCTOS_STORAGE);
             productos = guardados ? JSON.parse(guardados) : [];
             renderizarLista();
         }
 
+        // 💾 Guardar productos
         function guardarProductos() {
             localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(productos));
             renderizarLista();
         }
 
+        // ➕ Agregar producto
         function agregarProducto() {
             const nombre = document.getElementById('nombre').value.trim();
             const descripcion = document.getElementById('descripcion').value.trim();
@@ -144,11 +160,13 @@
             guardarProductos();
             mostrarMensaje(`✅ Producto "${nombre}" agregado con éxito`, "exito");
 
+            // Limpiar campos
             document.getElementById('nombre').value = "";
             document.getElementById('descripcion').value = "";
             document.getElementById('precio').value = "";
         }
 
+        // 🗑️ Eliminar producto
         function eliminarProducto(id) {
             if (confirm("¿Seguro que quieres eliminar este producto?")) {
                 productos = productos.filter(p => p.id !== id);
@@ -157,6 +175,7 @@
             }
         }
 
+        // ✏️ Editar producto
         function editarProducto(id) {
             const prod = productos.find(p => p.id === id);
             if (!prod) return;
@@ -175,6 +194,7 @@
             mostrarMensaje("✅ Producto actualizado", "exito");
         }
 
+        // 📋 Renderizar lista
         function renderizarLista() {
             const lista = document.getElementById('listaProductos');
             document.getElementById('contador').textContent = productos.length;
@@ -201,6 +221,7 @@
             });
         }
 
+        // 📤 Exportar datos
         function exportarDatos() {
             const texto = JSON.stringify(productos, null, 2);
             const blob = new Blob([texto], {type: 'application/json'});
@@ -212,6 +233,7 @@
             mostrarMensaje("✅ Copia de seguridad descargada", "exito");
         }
 
+        // 📥 Importar datos
         function importarDatos() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -237,6 +259,7 @@
             input.click();
         }
 
+        // 🔁 Auto-login si ya está autenticado
         window.onload = () => {
             if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
                 document.getElementById('pantallaClave').classList.add('oculto');
@@ -247,4 +270,4 @@
     </script>
 </body>
 </html>
-  
+     
