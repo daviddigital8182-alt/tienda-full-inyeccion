@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+          <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +9,7 @@
         body {background:#0f172a; color:#f8fafc; min-height:100vh;}
         header {background:#1e293b; padding:1.5rem; text-align:center; border-bottom:3px solid #f59e0b;}
         h1 {color:#f59e0b; font-size:1.6rem;}
+        .subtitulo {color:#94a3b8; margin-top:0.5rem; font-size:0.95rem;}
         .contenedor {max-width:800px; margin:0 auto; padding:1.5rem;}
         .caja {background:#1e293b; border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;}
         h2 {color:#f59e0b; margin-bottom:1rem; font-size:1.3rem;}
@@ -32,7 +33,6 @@
 </head>
 <body>
 
-    <!-- 🔐 PANTALLA DE CLAVE -->
     <div id="pantallaClave" class="contenedor">
         <header>
             <h1>🔐 PANEL DE CONTROL</h1>
@@ -42,11 +42,10 @@
             <h2 style="text-align:center;">🔑 Ingresa tu clave</h2>
             <input type="password" id="inputClave" placeholder="Escribe tu clave secreta">
             <button class="btn-amarillo" onclick="verificarClave()">🔓 Entrar al Panel</button>
-            <p class="instruccion" style="text-align:center; margin-top:1rem;">💡 Tu clave por defecto: <strong>admin123</strong><br>puedes cambiarla cuando quieras</p>
+            <p class="instruccion" style="text-align:center; margin-top:1rem;">💡 Tu clave por defecto: <strong>admin123</strong></p>
         </div>
     </div>
 
-    <!-- 📊 PANEL DE CONTROL (se muestra después de la clave) -->
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
@@ -55,10 +54,8 @@
         </header>
 
         <div class="contenedor">
-            <!-- ✅ MENSAJE DE CONFIRMACIÓN -->
             <div id="mensaje" class="mensaje oculto"></div>
 
-            <!-- ➕ AGREGAR PRODUCTO -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
@@ -67,7 +64,6 @@
                 <button class="btn-verde" onclick="agregarProducto()">💾 Guardar Producto</button>
             </div>
 
-            <!-- 📦 LISTA DE PRODUCTOS -->
             <div class="caja">
                 <h2>📦 Mis Productos (<span id="contador">0</span>)</h2>
                 <div id="listaProductos">
@@ -75,7 +71,6 @@
                 </div>
             </div>
 
-            <!-- 💾 COPIA DE SEGURIDAD -->
             <div class="caja">
                 <h2>💾 Copia de Seguridad</h2>
                 <button class="btn-amarillo" onclick="exportarDatos()">📤 Exportar / Guardar Todo</button>
@@ -86,14 +81,12 @@
     </div>
 
     <script>
-        // 🔐 CONFIGURACIÓN
-        const CLAVE_SECRETA = "admin123"; // ✅ Cambia esta clave por la tuya
+        const CLAVE_SECRETA = "admin123";
         const CLAVE_STORAGE = "fullinyeccion_clave";
         const PRODUCTOS_STORAGE = "fullinyeccion_productos";
 
         let productos = [];
 
-        // 🔐 Verificar clave
         function verificarClave() {
             const claveIngresada = document.getElementById('inputClave').value;
             if (claveIngresada === CLAVE_SECRETA) {
@@ -107,13 +100,11 @@
             }
         }
 
-        // 🚪 Cerrar sesión
         function cerrarSesion() {
             localStorage.removeItem(CLAVE_STORAGE);
             location.reload();
         }
 
-        // ✅ Mostrar mensaje
         function mostrarMensaje(texto, tipo) {
             const caja = document.getElementById('mensaje');
             caja.textContent = texto;
@@ -122,20 +113,17 @@
             setTimeout(() => caja.classList.add('oculto'), 3000);
         }
 
-        // 📦 Cargar productos guardados
         function cargarProductos() {
             const guardados = localStorage.getItem(PRODUCTOS_STORAGE);
             productos = guardados ? JSON.parse(guardados) : [];
             renderizarLista();
         }
 
-        // 💾 Guardar productos
         function guardarProductos() {
             localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(productos));
             renderizarLista();
         }
 
-        // ➕ Agregar producto
         function agregarProducto() {
             const nombre = document.getElementById('nombre').value.trim();
             const descripcion = document.getElementById('descripcion').value.trim();
@@ -156,13 +144,11 @@
             guardarProductos();
             mostrarMensaje(`✅ Producto "${nombre}" agregado con éxito`, "exito");
 
-            // Limpiar campos
             document.getElementById('nombre').value = "";
             document.getElementById('descripcion').value = "";
             document.getElementById('precio').value = "";
         }
 
-        // 🗑️ Eliminar producto
         function eliminarProducto(id) {
             if (confirm("¿Seguro que quieres eliminar este producto?")) {
                 productos = productos.filter(p => p.id !== id);
@@ -171,7 +157,6 @@
             }
         }
 
-        // ✏️ Editar producto
         function editarProducto(id) {
             const prod = productos.find(p => p.id === id);
             if (!prod) return;
@@ -190,7 +175,6 @@
             mostrarMensaje("✅ Producto actualizado", "exito");
         }
 
-        // 📋 Renderizar lista
         function renderizarLista() {
             const lista = document.getElementById('listaProductos');
             document.getElementById('contador').textContent = productos.length;
@@ -217,7 +201,6 @@
             });
         }
 
-        // 📤 Exportar datos
         function exportarDatos() {
             const texto = JSON.stringify(productos, null, 2);
             const blob = new Blob([texto], {type: 'application/json'});
@@ -229,7 +212,6 @@
             mostrarMensaje("✅ Copia de seguridad descargada", "exito");
         }
 
-        // 📥 Importar datos
         function importarDatos() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -255,7 +237,6 @@
             input.click();
         }
 
-        // 🔁 Auto-login si ya está autenticado
         window.onload = () => {
             if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
                 document.getElementById('pantallaClave').classList.add('oculto');
@@ -266,3 +247,4 @@
     </script>
 </body>
 </html>
+  
