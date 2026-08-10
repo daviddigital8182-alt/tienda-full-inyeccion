@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -13,14 +13,11 @@
         .contenedor {max-width:1200px; margin:0 auto; padding:1.5rem;}
         h2 {text-align:center; margin-bottom:2rem; font-size:1.5rem; color:#f59e0b;}
 
-        /* ========== PRODUCTO CON GALERÍA PROFESIONAL ========== */
+        /* ========== PRODUCTO CON GALERÍA ========== */
         .producto {background:#1e293b; border-radius:16px; padding:1.5rem; margin-bottom:2rem; overflow:hidden;}
         .producto-contenido {display:grid; grid-template-columns:1fr 1fr; gap:2rem;}
         
-        /* 📸 GALERÍA DE IMÁGENES — ¡IMAGEN SIEMPRE DENTRO DE SU CAJA! ✅ */
         .galeria {position:relative; display:flex; flex-direction:column;}
-        
-        /* 🖼️ CAJA FIJA — LA IMAGEN NUNCA SE SALE DE AQUÍ ✅ */
         .caja-imagen-principal {
             width:100%;
             height:400px;
@@ -32,7 +29,6 @@
             align-items:center;
             justify-content:center;
         }
-        
         .imagen-principal {
             width:100%;
             height:100%;
@@ -42,16 +38,12 @@
             background:#334155;
         }
         .imagen-principal.zoom {transform:scale(1.5); cursor:zoom-out;}
-        
-        /* 🎬 VIDEO — TAMBIÉN DENTRO DE LA MISMA CAJA ✅ */
         .video-principal {
             width:100%;
             height:100%;
             border-radius:12px;
             background:#000;
         }
-        
-        /* 📱 MINIATURAS */
         .miniaturas {
             display:flex;
             gap:0.8rem;
@@ -74,8 +66,6 @@
         }
         .miniatura:hover {border-color:#f59e0b; transform:scale(1.05);}
         .miniatura.activa {border-color:#f59e0b; box-shadow:0 0 0 2px #f59e0b;}
-        
-        /* 🎬 MINIATURA DE VIDEO */
         .miniatura-video {position:relative;}
         .miniatura-video::after {
             content:"▶";
@@ -92,34 +82,111 @@
             font-size:12px;
         }
 
-        /* 📝 INFO DEL PRODUCTO */
         .info-producto h3 {color:#f59e0b; font-size:1.5rem; margin-bottom:1rem;}
         .descripcion {color:#cbd5e1; font-size:1rem; line-height:1.6; margin-bottom:1.5rem;}
         .precio {font-size:2rem; font-weight:bold; color:#22c55e; margin:1.5rem 0;}
         .precio span {font-size:1rem; color:#94a3b8;}
+        
+        /* 🟢 BOTONES DE ACCIÓN — PEDIR + COMPARTIR */
+        .botones-accion {display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem;}
         button {
-            width:100%;
             padding:1rem;
-            background:#25d363;
             color:white;
             border:none;
             border-radius:10px;
             font-weight:bold;
-            font-size:1.1rem;
+            font-size:1rem;
             cursor:pointer;
             transition:all 0.2s;
         }
-        button:hover {background:#12b74d; transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,211,99,0.3);}
+        .btn-whatsapp {background:#25d363;}
+        .btn-whatsapp:hover {background:#12b74d; transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,211,99,0.3);}
+        .btn-compartir {background:#f59e0b;}
+        .btn-compartir:hover {background:#d97706; transform:translateY(-2px); box-shadow:0 4px 12px rgba(245,158,11,0.3);}
+
+        /* 📱 MENÚ COMPARTIR — FLOTANTE Y ELEGANTE */
+        .menu-compartir {
+            position:fixed;
+            top:50%; left:50%;
+            transform:translate(-50%, -50%) scale(0.9);
+            background:#1e293b;
+            border-radius:16px;
+            padding:2rem;
+            z-index:1000;
+            box-shadow:0 10px 40px rgba(0,0,0,0.5);
+            opacity:0;
+            visibility:hidden;
+            transition:all 0.3s ease;
+            min-width:320px;
+            max-width:90vw;
+        }
+        .menu-compartir.activo {opacity:1; visibility:visible; transform:translate(-50%, -50%) scale(1);}
+        .menu-compartir h3 {color:#f59e0b; text-align:center; margin-bottom:1.5rem;}
+        .cerrar-menu {
+            position:absolute;
+            top:1rem; right:1rem;
+            background:transparent;
+            color:#94a3b8;
+            font-size:1.5rem;
+            padding:0;
+            width:36px; height:36px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:50%;
+        }
+        .cerrar-menu:hover {background:#334155; color:white;}
+        .opcion-compartir {
+            display:flex;
+            align-items:center;
+            gap:1rem;
+            padding:1rem 1.25rem;
+            background:#334155;
+            border-radius:10px;
+            margin-bottom:0.75rem;
+            cursor:pointer;
+            transition:all 0.2s;
+            color:white;
+            text-decoration:none;
+        }
+        .opcion-compartir:hover {transform:translateX(5px); background:#475569;}
+        .opcion-compartir span {font-size:1.25rem;}
+        .overlay-compartir {
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.7);
+            z-index:999;
+            opacity:0;
+            visibility:hidden;
+            transition:all 0.3s;
+        }
+        .overlay-compartir.activo {opacity:1; visibility:visible;}
+        .mensaje-copiado {
+            position:fixed;
+            bottom:2rem; left:50%;
+            transform:translateX(-50%) translateY(10px);
+            background:#25d363;
+            color:white;
+            padding:1rem 2rem;
+            border-radius:10px;
+            font-weight:bold;
+            opacity:0;
+            visibility:hidden;
+            transition:all 0.3s;
+            z-index:1001;
+        }
+        .mensaje-copiado.activo {opacity:1; visibility:visible; transform:translateX(-50%) translateY(0);}
 
         /* 📱 RESPONSIVE — CELULAR PERFECTO ✅ */
         @media (max-width:768px) {
             .producto-contenido {grid-template-columns:1fr;}
             .caja-imagen-principal {height:300px;}
+            .botones-accion {grid-template-columns:1fr 1fr;}
         }
 
         .cargando {text-align:center; color:#94a3b8; padding:3rem; font-size:1.1rem;}
         
-        /* 👁️ CONTADOR DE VISITAS — ESTILO */
+        /* 👁️ CONTADOR DE VISITAS */
         .contador-visitas {
             display:inline-flex;
             align-items:center;
@@ -150,7 +217,6 @@
     <header>
         <h1>🏍️ FULL INYECCIÓN</h1>
         <p class="subtitulo">Cables, Escáneres y Herramientas de Diagnóstico para Motos y Carros</p>
-        <!-- 👁️ CONTADOR DE VISITAS — AGREGADO SIN TOCAR NADA MÁS -->
         <div class="contador-visitas">
             <span>👁️ Visitas:</span>
             <span class="numero" id="contador-numero">0</span>
@@ -164,6 +230,19 @@
         </div>
     </div>
 
+    <!-- 📱 MENÚ COMPARTIR — FLOTANTE -->
+    <div class="overlay-compartir" id="overlayCompartir" onclick="cerrarMenuCompartir()"></div>
+    <div class="menu-compartir" id="menuCompartir">
+        <button class="cerrar-menu" onclick="cerrarMenuCompartir()">×</button>
+        <h3>🔗 Compartir Producto</h3>
+        <div id="opcionesCompartir">
+            <!-- Se llena dinámicamente al darle a Compartir -->
+        </div>
+    </div>
+
+    <!-- ✅ MENSAJE "COPIADO" -->
+    <div class="mensaje-copiado" id="mensajeCopiado">✅ ¡Enlace copiado!</div>
+
     <footer>
         <p>📍 Medellín, Colombia 🇨🇴 | 📱 WhatsApp: +57 316 718 8394</p>
         <p>🚚 Envíos a todo el país | 🏍️ Full Inyección © 2026</p>
@@ -171,7 +250,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, setDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
@@ -185,16 +264,11 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 👁️ === CONTADOR DE VISITAS ===
+  // 👁️ CONTADOR DE VISITAS — IGUAL ✅
   async function contarVisita() {
     try {
       const ref = doc(db, "estadisticas", "contador");
-      await setDoc(ref, { 
-        visitas: increment(1),
-        ultimaVisita: new Date()
-      }, { merge: true });
-      
-      // Leer y mostrar el número actual
+      await setDoc(ref, { visitas: increment(1), ultimaVisita: new Date() }, { merge: true });
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const total = snap.data().visitas || 1;
@@ -205,35 +279,25 @@
     }
   }
   contarVisita();
-  // === FIN CONTADOR ===
 
-  // 📸 Renderizar galería — TODO IGUAL QUE ANTES ✅
+  // 📸 GALERÍA — IGUAL ✅
   function renderizarGaleria(producto) {
     const imagenes = producto.imagenes || [];
     const videos = producto.videos || [];
     const todos = [...imagenes, ...videos];
 
     if (todos.length === 0) {
-      return `
-        <div class="galeria">
-          <div class="caja-imagen-principal">
-            <div style="color:#94a3b8; text-align:center;">📷 Sin imagen disponible</div>
-          </div>
-        </div>
-      `;
+      return `<div class="galeria"><div class="caja-imagen-principal"><div style="color:#94a3b8; text-align:center;">📷 Sin imagen disponible</div></div></div>`;
     }
 
     return `
       <div class="galeria">
         <div class="caja-imagen-principal">
-          ${todos.length > 0 ? 
-            (todos[0].includes('youtube') || todos[0].includes('youtu.be') || todos[0].includes('video')) ?
-              `<iframe class="video-principal" id="media-principal" src="${todos[0]}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>` :
-              `<img src="${todos[0]}" class="imagen-principal" id="media-principal" alt="${producto.nombre}" onclick="this.classList.toggle('zoom')">`
-            : `<div style="color:#94a3b8; text-align:center;">📷 Sin imagen</div>`
+          ${todos[0].includes('youtube') || todos[0].includes('youtu.be') || todos[0].includes('video') ?
+            `<iframe class="video-principal" id="media-principal" src="${todos[0]}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>` :
+            `<img src="${todos[0]}" class="imagen-principal" id="media-principal" alt="${producto.nombre}" onclick="this.classList.toggle('zoom')">`
           }
         </div>
-        
         ${todos.length > 1 ? `
           <div class="miniaturas">
             ${todos.map((url, i) => {
@@ -251,7 +315,7 @@
     `;
   }
 
-  // 📦 Cargar productos — TODO IGUAL ✅
+  // 📦 CARGAR PRODUCTOS — IGUAL PERO CON BOTÓN COMPARTIR AGREGADO ✅
   async function cargarProductos() {
     const contenedor = document.getElementById('lista-productos');
     try {
@@ -270,6 +334,9 @@
 
       querySnapshot.forEach((docSnap) => {
         const p = docSnap.data();
+        const nombreEncode = encodeURIComponent(p.nombre || 'Producto');
+        const textoWhatsApp = encodeURIComponent(`Hola! Quiero comprar: ${p.nombre}`);
+        const enlaceProducto = window.location.href.split('#')[0];
         
         contenedor.innerHTML += `
           <div class="producto">
@@ -279,9 +346,13 @@
                 <h3>${p.nombre || 'Producto sin nombre'}</h3>
                 <p class="descripcion">${p.descripcion || 'Sin descripción disponible'}</p>
                 <div class="precio">$ ${p.precio ? Number(p.precio).toLocaleString('es-CO') : '0'} <span>COP</span></div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar: ${encodeURIComponent(p.nombre || '')}" target="_blank" style="text-decoration:none;">
-                  <button>💬 Pedir por WhatsApp</button>
-                </a>
+                
+                <div class="botones-accion">
+                  <a href="https://wa.me/573167188394?text=${textoWhatsApp}" target="_blank" style="text-decoration:none;">
+                    <button class="btn-whatsapp">💬 Pedir por WhatsApp</button>
+                  </a>
+                  <button class="btn-compartir" onclick="abrirMenuCompartir('${nombreEncode}', '${enlaceProducto}', this)">🔗 Compartir</button>
+                </div>
               </div>
             </div>
           </div>
@@ -292,16 +363,14 @@
     }
   }
 
-  // 🔄 Cambiar imagen/video — TODO IGUAL ✅
+  // 🔄 CAMBIAR IMAGEN/VIDEO — IGUAL ✅
   window.cambiarMedia = function(url, indice, miniatura) {
     const cajaPrincipal = miniatura.closest('.galeria').querySelector('.caja-imagen-principal');
     const todasMiniaturas = miniatura.parentElement.querySelectorAll('.miniatura');
-    
     todasMiniaturas.forEach(m => m.classList.remove('activa'));
     miniatura.classList.add('activa');
 
     const esVideo = url.includes('youtube') || url.includes('youtu.be') || url.includes('video');
-    
     if (esVideo) {
       cajaPrincipal.innerHTML = `<iframe class="video-principal" id="media-principal" src="${url}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
     } else {
@@ -309,7 +378,68 @@
     }
   };
 
+  // 🔗 FUNCIONES COMPARTIR — NUEVAS Y ELEGANTES ✨
+  let productoActual = { nombre: '', enlace: '' };
+
+  window.abrirMenuCompartir = function(nombreEncode, enlace, boton) {
+    productoActual.nombre = decodeURIComponent(nombreEncode);
+    productoActual.enlace = enlace;
+    
+    const opciones = document.getElementById('opcionesCompartir');
+    const textoCompartir = encodeURIComponent(`🏍️ Mira este producto: ${productoActual.nombre}\n${enlace}`);
+    const textoFacebook = encodeURIComponent(`🏍️ Full Inyección — ${productoActual.nombre}\n${enlace}`);
+    
+    opciones.innerHTML = `
+      <a class="opcion-compartir" href="https://wa.me/?text=${textoCompartir}" target="_blank">
+        <span>📱</span> WhatsApp
+      </a>
+      <a class="opcion-compartir" href="https://www.facebook.com/sharer/sharer.php?quote=${textoCompartir}&u=${encodeURIComponent(enlace)}" target="_blank">
+        <span>📘</span> Facebook
+      </a>
+      <div class="opcion-compartir" onclick="compartirInstagram('${enlace}')">
+        <span>📸</span> Instagram / Historias
+      </div>
+      <div class="opcion-compartir" onclick="compartirTikTok('${enlace}')">
+        <span>🎵</span> TikTok
+      </div>
+      <div class="opcion-compartir" onclick="copiarEnlace('${enlace}')">
+        <span>📋</span> Copiar enlace
+      </div>
+    `;
+    
+    document.getElementById('overlayCompartir').classList.add('activo');
+    document.getElementById('menuCompartir').classList.add('activo');
+  };
+
+  window.cerrarMenuCompartir = function() {
+    document.getElementById('overlayCompartir').classList.remove('activo');
+    document.getElementById('menuCompartir').classList.remove('activo');
+  };
+
+  window.copiarEnlace = async function(enlace) {
+    try {
+      await navigator.clipboard.writeText(enlace);
+      const aviso = document.getElementById('mensajeCopiado');
+      aviso.classList.add('activo');
+      setTimeout(() => aviso.classList.remove('activo'), 2000);
+      cerrarMenuCompartir();
+    } catch (e) {
+      alert('Enlace: ' + enlace);
+    }
+  };
+
+  window.compartirInstagram = function(enlace) {
+    copiarEnlace(enlace);
+    alert('✅ Enlace copiado!\nPega el enlace en tu historia o perfil de Instagram 📸');
+  };
+
+  window.compartirTikTok = function(enlace) {
+    copiarEnlace(enlace);
+    alert('✅ Enlace copiado!\nPega el enlace en tu video o perfil de TikTok 🎵');
+  };
+
   cargarProductos();
 </script>
 </body>
 </html>
+          
