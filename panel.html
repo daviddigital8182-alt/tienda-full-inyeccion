@@ -64,6 +64,9 @@
         .numero-fotos {font-size:1.2rem; font-weight:bold; color:#f59e0b;}
         .info-formato {font-size:0.8rem; color:#22c55e; margin-top:0.3rem;}
         .aviso-limite {background:rgba(245,158,11,0.15); border:1px solid #f59e0b; padding:0.6rem; border-radius:6px; margin:0.8rem 0; font-size:0.9rem; color:#fbbf24;}
+        .galeria-fotos {display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:0.5rem; margin:0.8rem 0;}
+        .galeria-fotos img {width:100%; height:80px; object-fit:cover; border-radius:6px; border:2px solid #475569;}
+        .foto-enlace {font-size:0.75rem; color:#94a3b8; word-break:break-all;}
     </style>
 </head>
 <body>
@@ -85,7 +88,7 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ FULL INYECCIÓN — PANEL</h1>
-            <p class="subtitulo">📸 FOTOS NÍTIDAS GARANTIZADAS • Hasta 20 por producto • SIN NEGRAS ✨</p>
+            <p class="subtitulo">📸 FOTOS NÍTIDAS GARANTIZADAS • Hasta 20 por producto • CON STORAGE ☁️</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -107,7 +110,7 @@
                 
                 <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
                 <p class="instruccion">✅ Formatos: JPG, PNG, WebP, GIF, BMP 📁</p>
-                <p class="info-formato">🔧 Método directo optimizado → ¡NUNCA salen negras! ✨</p>
+                <p class="info-formato">🔧 Subiendo a Firebase Storage → NUNCA se satura Firestore ✨</p>
                 
                 <div class="barra-progreso" id="barraSubida" style="display:none;">
                     <div class="progreso" id="progreso"></div>
@@ -173,6 +176,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
@@ -185,25 +189,28 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   const COLLECTION = "productos";
   const CLAVE_SECRETA = "admin123";
   const CLAVE_STORAGE = "fullinyeccion_clave";
 
-  // 🎯 CONFIGURACIÓN BASADA EN INVESTIGACIÓN Y PRUEBAS
+  // 🎯 CONFIGURACIÓN
   const CONFIG = {
-    maxAncho: 720,        // ✅ Equilibrado: nítido + ligero → caben más fotos
-    maxAlto: 960,         // ✅ Mantiene proporción vertical
-    calidad: 0.80,        // ✅ 80% → nítida y pesa poco (~60-100KB por foto)
-    limiteFotos: 20,      // ✅ Hasta 20 fotos por producto
-    limiteAdvertencia: 15, // ⚠️ Avisar a las 15
-    pesoObjetivo: 80 * 1024 // ✅ ~80KB por foto → 20 × 80KB = 1.6MB (optimizado)
+    maxAncho: 720,
+    maxAlto: 960,
+    calidad: 0.80,
+    limiteFotos: 20,
+    limiteAdvertencia: 15,
+    pesoObjetivo: 80 * 1024
   };
 
-  let imagenes = [];
+  let imagenes = []; // Almacena dataURLs temporalmente para subir
+  let imagenesUrls = []; // URLs ya subidas
   let videos = [];
   let productos = [];
   let productoEditarId = null;
-  let editarImagenes = [];
+  let editarImagenes = []; // dataURLs para subir
+  let editarImagenesUrls = []; // URLs ya subidas
   let editarVideos = [];
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -245,18 +252,14 @@
     }
   }
 
-  // 🎨 FUNCIÓN PROBADA Y CONFIRMADA — YA NO SALE NEGRA ✅
+  // 🎨 Optimizar foto
   async function optimizarFoto(archivo) {
     return new Promise((resolver, rechazar) => {
-      // ✅ PASO 1: Leer el archivo
       const lector = new FileReader();
       lector.onload = function(e) {
         const img = new Image();
-        
-        // ✅ PASO 2: Cuando la imagen cargue COMPLETAMENTE
         img.onload = function() {
           try {
-            // 📐 Calcular nuevas dimensiones manteniendo proporción
             let ancho = img.width;
             let alto = img.height;
             
@@ -271,52 +274,62 @@
               ancho = Math.round(ancho * proporcion);
             }
 
-            // 🎨 Dibujar en canvas — MÉTODO PROBADO Y CORREGIDO
             const canvas = document.createElement('canvas');
             canvas.width = ancho;
             canvas.height = alto;
             const ctx = canvas.getContext('2d');
             
-            // ✅ LIMPIAR ANTES DE DIBUJAR — ¡LA CLAVE PARA QUE NO SALGA NEGRA! 🗝️
             ctx.clearRect(0, 0, ancho, alto);
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = "high";
             ctx.drawImage(img, 0, 0, ancho, alto);
 
-            // 📉 Convertir a JPEG con calidad controlada
             let calidad = CONFIG.calidad;
             let resultado = canvas.toDataURL('image/jpeg', calidad);
             
-            // ⚠️ Si pesa mucho, reducir calidad POCO a poco
             while (resultado.length > CONFIG.pesoObjetivo && calidad > 0.60) {
               calidad -= 0.05;
               resultado = canvas.toDataURL('image/jpeg', calidad);
             }
 
-            // ✅ LIBERAR MEMORIA
             img.src = "";
             resolver(resultado);
           } catch (error) {
             console.warn("⚠️ Canvas falló, usando directo:", error);
-            // 🛡️ PLAN B: Usar la imagen original directa
             resolver(e.target.result);
           }
         };
-        
         img.onerror = function() {
-          // 🛡️ PLAN B si la imagen no carga
           resolver(e.target.result);
         };
-        
         img.src = e.target.result;
       };
-      
       lector.onerror = () => rechazar(new Error("No se pudo leer el archivo"));
       lector.readAsDataURL(archivo);
     });
   }
 
-  // 📸 PROCESAR FOTOS — MÉTODO PROBADO Y CONFIRMADO ✅
+  // 📤 Subir una imagen a Firebase Storage
+  async function subirImagenStorage(dataURL, nombreProducto, index) {
+    try {
+      // Generar nombre único
+      const timestamp = Date.now();
+      const nombreArchivo = `${nombreProducto.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}_${index}.jpg`;
+      const storageRef = ref(storage, `productos/${nombreArchivo}`);
+      
+      // Subir como base64
+      await uploadString(storageRef, dataURL, 'data_url');
+      
+      // Obtener URL de descarga
+      const url = await getDownloadURL(storageRef);
+      return url;
+    } catch (error) {
+      console.error("❌ Error subiendo imagen:", error);
+      throw error;
+    }
+  }
+
+  // 📸 PROCESAR FOTOS (solo guarda en memoria, no sube aún)
   window.procesarFotos = async function(event) {
     const archivos = event.target.files;
     if (!archivos || archivos.length === 0) return;
@@ -351,7 +364,6 @@
       } catch (err) {
         console.error("❌ Error procesando:", err);
         mostrarMensaje(`⚠️ Usando foto ${i+1} sin compresión`, "aviso");
-        // 🛡️ PLAN B: Leer directo sin canvas
         const lector = new FileReader();
         lector.onload = function(e) {
           imagenes.push(e.target.result);
@@ -371,7 +383,7 @@
     event.target.value = "";
   };
 
-  // 📸 PROCESAR FOTOS EN EDICIÓN — MISMO MÉTODO ✅
+  // 📸 PROCESAR FOTOS EN EDICIÓN
   window.procesarFotosEditar = async function(event) {
     const archivos = event.target.files;
     if (!archivos || archivos.length === 0) return;
@@ -421,8 +433,9 @@
   }
   function renderizarEditarFotos() {
     const c=document.getElementById('editarFotosLista');
-    c.innerHTML=editarImagenes.length?editarImagenes.map((u,i)=>`<div class="miniatura-editar"><img src="${u}" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
-    document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
+    const todasLasFotos = [...editarImagenesUrls, ...editarImagenes];
+    c.innerHTML=todasLasFotos.length?todasLasFotos.map((u,i)=>`<div class="miniatura-editar"><img src="${u}" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
+    document.getElementById('contadorEditarFotos').textContent = editarImagenesUrls.length + editarImagenes.length;
   }
   function renderizarEditarVideos() {
     const c=document.getElementById('editarVideosLista');
@@ -430,69 +443,255 @@
     document.getElementById('contadorEditarVideos').textContent = editarVideos.length;
   }
 
-  window.guardarProductoNuevo=async()=>{
-    const n=document.getElementById('nombre').value.trim(),d=document.getElementById('descripcion').value.trim(),p=document.getElementById('precio').value.trim();
-    if(!n||!p)return mostrarMensaje("⚠️ Escribe el nombre y el precio","aviso");
-    try{
-      const datos={
-        nombre:n,
-        descripcion:d,
-        precio:Number(p),
-        imagenes:imagenes.length>0?[...imagenes]:[`https://via.placeholder.com/720x960/1e293b/f59e0b?text=${encodeURIComponent(n)}`],
-        videos:[...videos]
-      };
-      await addDoc(collection(db,COLLECTION),datos);
-      mostrarMensaje(`✅ "${n}" guardado con ${imagenes.length} foto(s) nítidas 📸✨`,"exito");
-      document.getElementById('nombre').value=document.getElementById('descripcion').value=document.getElementById('precio').value=document.getElementById('videoUrl').value='';
-      imagenes=[];videos=[];actualizarContador();renderizarVistaImagenes();renderizarVistaVideos();
-      await cargarDesdeNube();
-    }catch(e){
-      if(e.message.includes("exceeds")){
-        mostrarMensaje("❌ Demasiadas fotos. Usa menos o enlaces 🔗", "error");
-      }else{
-        mostrarMensaje("❌ Error: "+e.message,"error");
+  // 💾 GUARDAR PRODUCTO NUEVO - Sube imágenes a Storage
+  window.guardarProductoNuevo = async function() {
+    const n=document.getElementById('nombre').value.trim();
+    const d=document.getElementById('descripcion').value.trim();
+    const p=document.getElementById('precio').value.trim();
+    
+    if(!n||!p) return mostrarMensaje("⚠️ Escribe el nombre y el precio","aviso");
+    if(imagenes.length === 0) {
+      mostrarMensaje("⚠️ Agrega al menos una foto","aviso");
+      return;
+    }
+
+    try {
+      mostrarMensaje("⏳ Subiendo fotos a Storage...", "aviso");
+      
+      // Subir todas las imágenes a Storage
+      const urlsSubidas = [];
+      for (let i = 0; i < imagenes.length; i++) {
+        try {
+          const url = await subirImagenStorage(imagenes[i], n, i);
+          urlsSubidas.push(url);
+          // Actualizar progreso
+          const porcentaje = Math.round(((i + 1) / imagenes.length) * 100);
+          document.getElementById('progreso').style.width = `${porcentaje}%`;
+        } catch (err) {
+          console.error("❌ Error subiendo foto:", err);
+          mostrarMensaje(`⚠️ Error subiendo foto ${i+1}: ${err.message}`, "aviso");
+        }
       }
-    }
-  };
 
-  window.abrirModalEditar=id=>{
-    const prod=productos.find(x=>x.id===id);if(!prod)return;
-    productoEditarId=id;editarImagenes=[...(prod.imagenes||[])];editarVideos=[...(prod.videos||[])];
-    document.getElementById('editarNombre').value=prod.nombre||'';document.getElementById('editarDescripcion').value=prod.descripcion||'';document.getElementById('editarPrecio').value=prod.precio||'';
-    renderizarEditarFotos();renderizarEditarVideos();document.getElementById('modalEditar').classList.remove('oculto');
-  };
-  window.cerrarModalEditar=()=>{document.getElementById('modalEditar').classList.add('oculto');productoEditarId=null;editarImagenes=[];editarVideos=[];};
-  window.guardarEdicion=async()=>{
-    const n=document.getElementById('editarNombre').value.trim(),d=document.getElementById('editarDescripcion').value.trim(),p=document.getElementById('editarPrecio').value.trim();
-    if(!n||!p)return mostrarMensaje("⚠️ Nombre y precio obligatorios","aviso");
-    try{
-      const datos={
-        nombre:n,descripcion:d,precio:Number(p),
-        imagenes:editarImagenes.length>0?[...editarImagenes]:[`https://via.placeholder.com/720x960/1e293b/f59e0b?text=${encodeURIComponent(n)}`],
-        videos:[...editarVideos]
+      if (urlsSubidas.length === 0) {
+        mostrarMensaje("❌ No se pudo subir ninguna foto", "error");
+        return;
+      }
+
+      // Guardar en Firestore solo las URLs
+      const datos = {
+        nombre: n,
+        descripcion: d,
+        precio: Number(p),
+        imagenes: urlsSubidas,
+        videos: [...videos]
       };
-      await updateDoc(doc(db,COLLECTION,productoEditarId),datos);
-      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬","exito");cerrarModalEditar();await cargarDesdeNube();
-    }catch(e){mostrarMensaje("❌ Error: "+e.message,"error");}
-  };
-
-  window.eliminarProducto=async id=>{
-    if(confirm("⚠️ ¿Eliminar producto completo con todas sus fotos y videos?")){
-      await deleteDoc(doc(db,COLLECTION,id));
-      mostrarMensaje("✅ Producto eliminado 🗑️","exito");await cargarDesdeNube();
+      
+      await addDoc(collection(db, COLLECTION), datos);
+      mostrarMensaje(`✅ "${n}" guardado con ${urlsSubidas.length} foto(s) subidas a Storage 📸✨`, "exito");
+      
+      // Limpiar
+      document.getElementById('nombre').value='';
+      document.getElementById('descripcion').value='';
+      document.getElementById('precio').value='';
+      document.getElementById('videoUrl').value='';
+      imagenes = [];
+      videos = [];
+      actualizarContador();
+      renderizarVistaImagenes();
+      renderizarVistaVistas();
+      await cargarDesdeNube();
+      
+    } catch(e) {
+      console.error("❌ Error guardando:", e);
+      mostrarMensaje("❌ Error: "+e.message, "error");
     }
   };
 
-  async function cargarDesdeNube(){
-    const l=document.getElementById('listaProductos');
-    try{
-      const q=await getDocs(collection(db,COLLECTION));productos=[];l.innerHTML='';document.getElementById('contador').textContent=q.size;
-      if(q.empty){l.innerHTML='<p style="color:#94a3b8;text-align:center;padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';return;}
-      q.forEach(d=>{const p=d.data();p.id=d.id;productos.push(p);l.innerHTML+=`<div class="producto-item"><h4 style="color:#f59e0b;">${p.nombre}</h4><p style="color:#cbd5e1;">${p.descripcion||'Sin descripción'}</p><p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p><p style="color:#94a3b8;">📸 ${(p.imagenes||[]).length} foto(s) | 🎬 ${(p.videos||[]).length} video(s)</p><div style="display:flex;gap:0.5rem;margin-top:1rem;"><button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button><button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button></div></div>`;});
-    }catch(e){l.innerHTML=`<p style="color:#ef4444;text-align:center;padding:2rem;">❌ Error: ${e.message}</p>`;}
+  // ✏️ ABRIR MODAL EDITAR
+  window.abrirModalEditar = function(id) {
+    const prod = productos.find(x => x.id === id);
+    if (!prod) return;
+    
+    productoEditarId = id;
+    editarImagenesUrls = [...(prod.imagenes || [])];
+    editarImagenes = [];
+    editarVideos = [...(prod.videos || [])];
+    
+    document.getElementById('editarNombre').value = prod.nombre || '';
+    document.getElementById('editarDescripcion').value = prod.descripcion || '';
+    document.getElementById('editarPrecio').value = prod.precio || '';
+    
+    renderizarEditarFotos();
+    renderizarEditarVideos();
+    document.getElementById('modalEditar').classList.remove('oculto');
+  };
+
+  window.cerrarModalEditar = function() {
+    document.getElementById('modalEditar').classList.add('oculto');
+    productoEditarId = null;
+    editarImagenesUrls = [];
+    editarImagenes = [];
+    editarVideos = [];
+  };
+
+  window.quitarImagenEditar = function(i) {
+    // Si el índice está en las URLs existentes
+    if (i < editarImagenesUrls.length) {
+      editarImagenesUrls.splice(i, 1);
+    } else {
+      // Está en las nuevas imágenes
+      const idxNuevas = i - editarImagenesUrls.length;
+      editarImagenes.splice(idxNuevas, 1);
+    }
+    renderizarEditarFotos();
+    document.getElementById('contadorEditarFotos').textContent = editarImagenesUrls.length + editarImagenes.length;
+  };
+
+  // 💾 GUARDAR EDICIÓN
+  window.guardarEdicion = async function() {
+    const n=document.getElementById('editarNombre').value.trim();
+    const d=document.getElementById('editarDescripcion').value.trim();
+    const p=document.getElementById('editarPrecio').value.trim();
+    
+    if(!n||!p) return mostrarMensaje("⚠️ Nombre y precio obligatorios","aviso");
+    
+    try {
+      mostrarMensaje("⏳ Subiendo nuevas fotos a Storage...", "aviso");
+      
+      // Subir las nuevas fotos (las que están en editarImagenes como dataURL)
+      const nuevasUrls = [];
+      if (editarImagenes.length > 0) {
+        for (let i = 0; i < editarImagenes.length; i++) {
+          try {
+            const url = await subirImagenStorage(editarImagenes[i], n, Date.now() + i);
+            nuevasUrls.push(url);
+          } catch (err) {
+            console.error("❌ Error subiendo foto nueva:", err);
+          }
+        }
+      }
+      
+      // Combinar URLs existentes + nuevas
+      const todasLasUrls = [...editarImagenesUrls, ...nuevasUrls];
+      
+      if (todasLasUrls.length === 0) {
+        mostrarMensaje("⚠️ El producto debe tener al menos una foto", "aviso");
+        return;
+      }
+      
+      const datos = {
+        nombre: n,
+        descripcion: d,
+        precio: Number(p),
+        imagenes: todasLasUrls,
+        videos: [...editarVideos]
+      };
+      
+      await updateDoc(doc(db, COLLECTION, productoEditarId), datos);
+      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬", "exito");
+      cerrarModalEditar();
+      await cargarDesdeNube();
+      
+    } catch(e) {
+      console.error("❌ Error editando:", e);
+      mostrarMensaje("❌ Error: "+e.message, "error");
+    }
+  };
+
+  // 🗑️ ELIMINAR PRODUCTO
+  window.eliminarProducto = async function(id) {
+    if (!confirm("⚠️ ¿Eliminar producto completo con todas sus fotos?")) return;
+    
+    try {
+      const prod = productos.find(x => x.id === id);
+      
+      // Eliminar imágenes de Storage (opcional, pero recomendado)
+      if (prod && prod.imagenes) {
+        for (const url of prod.imagenes) {
+          try {
+            // Extraer referencia de la URL
+            const refPath = url.split('/o/')[1]?.split('?')[0];
+            if (refPath) {
+              const decodedPath = decodeURIComponent(refPath);
+              const fileRef = ref(storage, decodedPath);
+              await deleteObject(fileRef);
+            }
+          } catch (err) {
+            console.warn("⚠️ No se pudo eliminar imagen de Storage:", err);
+          }
+        }
+      }
+      
+      await deleteDoc(doc(db, COLLECTION, id));
+      mostrarMensaje("✅ Producto eliminado 🗑️", "exito");
+      await cargarDesdeNube();
+    } catch(e) {
+      mostrarMensaje("❌ Error eliminando: "+e.message, "error");
+    }
+  };
+
+  // 📋 CARGAR PRODUCTOS
+  async function cargarDesdeNube() {
+    const l = document.getElementById('listaProductos');
+    try {
+      const q = await getDocs(collection(db, COLLECTION));
+      productos = [];
+      l.innerHTML = '';
+      document.getElementById('contador').textContent = q.size;
+      
+      if (q.empty) {
+        l.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';
+        return;
+      }
+      
+      q.forEach(d => {
+        const p = d.data();
+        p.id = d.id;
+        productos.push(p);
+        
+        // Mostrar miniaturas de las fotos
+        let fotosHtml = '';
+        if (p.imagenes && p.imagenes.length > 0) {
+          fotosHtml = `<div class="galeria-fotos">`;
+          const mostrar = p.imagenes.slice(0, 4);
+          mostrar.forEach(url => {
+            fotosHtml += `<img src="${url}" alt="Foto" loading="lazy" onerror="this.style.display='none'">`;
+          });
+          if (p.imagenes.length > 4) {
+            fotosHtml += `<div style="display:flex;align-items:center;justify-content:center;background:#1e293b;border-radius:6px;color:#f59e0b;font-size:0.8rem;">+${p.imagenes.length - 4}</div>`;
+          }
+          fotosHtml += `</div>`;
+        } else {
+          fotosHtml = `<p style="color:#64748b;font-size:0.8rem;">📸 Sin fotos</p>`;
+        }
+        
+        l.innerHTML += `
+          <div class="producto-item">
+            <h4 style="color:#f59e0b;">${p.nombre}</h4>
+            <p style="color:#cbd5e1;">${p.descripcion || 'Sin descripción'}</p>
+            <p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
+            ${fotosHtml}
+            <p style="color:#94a3b8;font-size:0.8rem;">📸 ${(p.imagenes||[]).length} foto(s) | 🎬 ${(p.videos||[]).length} video(s)</p>
+            <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+              <button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button>
+              <button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
+            </div>
+          </div>
+        `;
+      });
+    } catch(e) {
+      console.error("❌ Error cargando:", e);
+      l.innerHTML = `<p style="color:#ef4444;text-align:center;padding:2rem;">❌ Error: ${e.message}</p>`;
+    }
   }
 
-  if(localStorage.getItem(CLAVE_STORAGE)==="autenticado"){document.getElementById('pantallaClave').classList.add('oculto');document.getElementById('panelControl').classList.remove('oculto');setTimeout(cargarDesdeNube,300);}
+  // 🔐 Auto-login
+  if(localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
+    document.getElementById('pantallaClave').classList.add('oculto');
+    document.getElementById('panelControl').classList.remove('oculto');
+    setTimeout(cargarDesdeNube, 300);
+  }
 </script>
 </body>
 </html>
