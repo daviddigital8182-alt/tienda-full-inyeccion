@@ -36,38 +36,33 @@
         .aviso {background:#f59e0b; color:#000;}
         .error {background:#dc2626; color:white;}
         .clave-input {max-width:350px; margin:3rem auto; display:block;}
-        .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem; text-align:center;}
+        .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem;}
         .estado-nube {padding:0.5rem; border-radius:6px; margin-bottom:1rem; text-align:center; font-weight:bold;}
         .conectado {background:#16a34a; color:white;}
         .desconectado {background:#dc2626; color:white;}
         
-        /* 📸 Vista previa de imágenes */
         .preview-imagen {width:100px; height:80px; object-fit:cover; border-radius:6px; margin:0.5rem; border:2px solid #475569;}
         .lista-imagenes {display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0;}
         .item-imagen {position:relative;}
         .btn-quitar-img {position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
         
-        /* 📊 Barra de progreso */
         .barra-progreso {width:100%; height:8px; background:#334155; border-radius:4px; margin:0.5rem 0; overflow:hidden;}
         .progreso {height:100%; background:linear-gradient(90deg, #25d363, #f59e0b); width:0%; transition:width 0.3s; border-radius:4px;}
         
-        /* 📝 MODAL DE EDICIÓN COMPLETA */
         .modal-fondo {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1rem;}
         .modal-contenido {background:#1e293b; border-radius:16px; padding:1.5rem; max-width:500px; width:100%; max-height:90vh; overflow-y:auto; border:2px solid #f59e0b;}
         .modal-contenido h2 {text-align:center; margin-top:0;}
         .fila-botones {display:flex; gap:0.8rem; margin-top:1.5rem;}
         .fila-botones button {flex:1;}
         .etiqueta {color:#f59e0b; font-weight:bold; margin-top:1rem; display:block;}
-        
-        /* 📸 Miniaturas en edición */
         .miniatura-editar {position:relative; display:inline-block; margin:0.5rem;}
         .miniatura-editar img {width:80px; height:60px; object-fit:cover; border-radius:6px; border:2px solid #475569;}
         .btn-quitar-mini {position:absolute; top:-8px; right:-8px; background:#ef4444; color:white; border:none; border-radius:50%; width:26px; height:26px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5);}
+        .info-calidad {font-size:0.85rem; color:#22c55e; margin-top:0.3rem;}
     </style>
 </head>
 <body>
 
-    <!-- 🔐 PANTALLA DE CLAVE -->
     <div id="pantallaClave" class="contenedor">
         <header>
             <h1>🔐 PANEL DE CONTROL</h1>
@@ -82,11 +77,10 @@
         </div>
     </div>
 
-    <!-- 📊 PANEL DE CONTROL -->
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
-            <p class="subtitulo">📸 Agrega, edita y borra fotos y videos cuando quieras ✅</p>
+            <p class="subtitulo">📸 Fotos NÍTIDAS y reconocibles ✨ | Se comprimen con calidad alta 📉</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -94,29 +88,26 @@
         <div class="contenedor">
             <div id="mensaje" class="mensaje oculto"></div>
 
-            <!-- ➕ AGREGAR PRODUCTO NUEVO -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
                 <textarea id="descripcion" rows="3" placeholder="Descripción detallada"></textarea>
                 <input type="number" id="precio" placeholder="Precio sin puntos: ej. 45000">
                 
-                <!-- 📸 Subir fotos -->
                 <h3>📸 Fotos del producto</h3>
                 <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
-                <p class="instruccion">✅ Toca "Elegir archivos" → selecciona fotos → se comprimen solas 📉</p>
+                <p class="instruccion">✅ Toca "Elegir archivos" → se mantienen nítidas ✨</p>
+                <p class="info-calidad">🔧 Ajuste: Calidad 85% + Ancho máximo 1000px → se ven bien y caben ✅</p>
                 <div class="barra-progreso" id="barraSubida" style="display:none;">
                     <div class="progreso" id="progreso"></div>
                 </div>
                 
-                <!-- 📸 Vista previa fotos nuevas -->
                 <div class="lista-imagenes" id="vistaImagenes">
-                    <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu celular o pega un enlace.</p>
+                    <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún.</p>
                 </div>
 
-                <!-- 🎬 Videos -->
                 <h3>🎬 Videos de YouTube</h3>
-                <input type="text" id="videoUrl" placeholder="Enlace de YouTube → pega aquí y toca Agregar">
+                <input type="text" id="videoUrl" placeholder="Enlace de YouTube">
                 <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarVideo()">➕ Agregar Video</button>
                 <div class="lista-imagenes" id="vistaVideos">
                     <p style="color:#64748b; font-size:0.9rem;">Sin videos aún.</p>
@@ -125,45 +116,37 @@
                 <button class="btn-verde" onclick="guardarProductoNuevo()" style="margin-top:1.5rem; font-size:1.1rem;">☁️ Guardar Producto Completo</button>
             </div>
 
-            <!-- 📦 LISTA DE PRODUCTOS CON BOTONES DE EDICIÓN -->
             <div class="caja">
                 <h2>📦 Mis Productos (<span id="contador">0</span>)</h2>
                 <div id="listaProductos">
-                    <p style="color:#94a3b8; text-align:center; padding:2rem;">📋 Cargando productos desde la nube...</p>
+                    <p style="color:#94a3b8; text-align:center; padding:2rem;">📋 Cargando productos...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 📝 MODAL: EDITAR PRODUCTO COMPLETO (FOTOS + VIDEOS TODO) -->
     <div id="modalEditar" class="modal-fondo oculto">
         <div class="modal-contenido">
             <h2>✏️ Editar Producto Completo</h2>
-            
-            <span class="etiqueta">Nombre del producto:</span>
-            <input type="text" id="editarNombre" placeholder="Nombre del producto">
-            
+            <span class="etiqueta">Nombre:</span>
+            <input type="text" id="editarNombre">
             <span class="etiqueta">Descripción:</span>
-            <textarea id="editarDescripcion" rows="3" placeholder="Descripción detallada"></textarea>
-            
+            <textarea id="editarDescripcion" rows="3"></textarea>
             <span class="etiqueta">Precio:</span>
-            <input type="number" id="editarPrecio" placeholder="Precio sin puntos">
+            <input type="number" id="editarPrecio">
 
-            <!-- 📸 EDITAR FOTOS — AGREGAR Y BORRAR -->
-            <span class="etiqueta">📸 Fotos actuales (toca la × para borrar):</span>
+            <span class="etiqueta">📸 Fotos actuales:</span>
             <div id="editarFotosLista" class="lista-imagenes"></div>
             
-            <span class="etiqueta">📸 Agregar nuevas fotos:</span>
+            <span class="etiqueta">📸 Agregar nuevas fotos (nítidas ✨):</span>
             <input type="file" id="editarSubirFoto" accept="image/*" multiple onchange="procesarFotosEditar(event)">
-            <p class="instruccion" style="margin-top:0;">✅ Se comprimen solas 📉</p>
 
-            <!-- 🎬 EDITAR VIDEOS — AGREGAR Y BORRAR -->
-            <span class="etiqueta">🎬 Videos actuales (toca la × para borrar):</span>
+            <span class="etiqueta">🎬 Videos actuales:</span>
             <div id="editarVideosLista" class="lista-imagenes"></div>
             
-            <span class="etiqueta">🎬 Agregar nuevo video de YouTube:</span>
-            <input type="text" id="editarVideoUrl" placeholder="Pega el enlace de YouTube">
-            <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem;" onclick="agregarVideoEditar()">➕ Agregar Video</button>
+            <span class="etiqueta">🎬 Agregar nuevo video:</span>
+            <input type="text" id="editarVideoUrl">
+            <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem;" onclick="agregarVideoEditar()">➕ Agregar</button>
 
             <div class="fila-botones">
                 <button class="btn-gris" onclick="cerrarModalEditar()">❌ Cancelar</button>
@@ -191,7 +174,6 @@
   const CLAVE_SECRETA = "admin123";
   const CLAVE_STORAGE = "fullinyeccion_clave";
 
-  // 📦 Variables globales
   let imagenes = [];
   let videos = [];
   let productos = [];
@@ -199,386 +181,152 @@
   let editarImagenes = [];
   let editarVideos = [];
 
-  // ✅ Estado de conexión
+  // 🎯 AJUSTES DE CALIDAD — LO QUE CAMBIÉ ✨
+  const CONFIG_FOTOS = {
+    calidad: 0.85,        // ⬆️ Antes 0.7 → AHORA 85% → MÁS NITIDEZ ✅
+    maxAncho: 1000,       // ⬆️ Antes 800px → AHORA 1000px → MÁS DETALLE ✅
+    limiteSeguro: 900 * 1024 // 900 KB → margen amplio para no pasar el límite
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     const estado = document.getElementById('estadoNube');
-    if (estado) {
-      setTimeout(() => {
-        estado.textContent = "✅ Conectado a la Nube ☁️";
-        estado.className = "estado-nube conectado";
-      }, 500);
-    }
+    setTimeout(() => { estado.textContent = "✅ Conectado a la Nube ☁️"; estado.className = "estado-nube conectado"; }, 500);
   });
 
-  // 🔐 Verificar clave
   window.verificarClave = function() {
-    const claveIngresada = document.getElementById('inputClave').value;
-    if (claveIngresada === CLAVE_SECRETA) {
+    if (document.getElementById('inputClave').value === CLAVE_SECRETA) {
       localStorage.setItem(CLAVE_STORAGE, "autenticado");
       document.getElementById('pantallaClave').classList.add('oculto');
       document.getElementById('panelControl').classList.remove('oculto');
       cargarDesdeNube();
-      mostrarMensaje("✅ ¡Bienvenido! Ahora puedes editar TODO: fotos, videos, todo ✏️📸", "exito");
-    } else {
-      mostrarMensaje("❌ Clave incorrecta", "aviso");
-    }
+      mostrarMensaje("✅ Fotos ahora con MAYOR NITIDEZ ✨📸", "exito");
+    } else mostrarMensaje("❌ Clave incorrecta", "aviso");
   };
 
-  // 🚪 Cerrar sesión
-  window.cerrarSesion = function() {
-    localStorage.removeItem(CLAVE_STORAGE);
-    location.reload();
-  };
+  window.cerrarSesion = () => { localStorage.removeItem(CLAVE_STORAGE); location.reload(); };
+  function mostrarMensaje(t, tipo) { const m=document.getElementById('mensaje'); m.textContent=t; m.className=`mensaje ${tipo}`; m.classList.remove('oculto'); setTimeout(()=>m.classList.add('oculto'),6000); }
 
-  // ✅ Mostrar mensaje
-  function mostrarMensaje(texto, tipo) {
-    const caja = document.getElementById('mensaje');
-    caja.textContent = texto;
-    caja.className = `mensaje ${tipo}`;
-    caja.classList.remove('oculto');
-    setTimeout(() => caja.classList.add('oculto'), 5000);
-  }
-
-  // 📉 COMPRIMIR FOTO
-  function comprimirImagen(urlBase64, calidad = 0.7, maxAncho = 800) {
+  // 🎨 COMPRIMIR PERO MANTENIENDO CALIDAD
+  function comprimirImagen(urlBase64) {
     return new Promise((resolver) => {
       const img = new Image();
       img.onload = function() {
         const canvas = document.createElement('canvas');
-        let ancho = img.width;
-        let alto = img.height;
-        if (ancho > maxAncho) {
-          const proporcion = maxAncho / ancho;
-          ancho = maxAncho;
-          alto = Math.round(alto * proporcion);
+        let ancho = img.width, alto = img.height;
+        if (ancho > CONFIG_FOTOS.maxAncho) {
+          const prop = CONFIG_FOTOS.maxAncho / ancho;
+          ancho = CONFIG_FOTOS.maxAncho;
+          alto = Math.round(alto * prop);
         }
-        canvas.width = ancho;
-        canvas.height = alto;
+        canvas.width = ancho; canvas.height = alto;
         const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true; // ✅ Suavizado inteligente
+        ctx.imageSmoothingQuality = "high"; // ✅ Calidad de dibujo alta
         ctx.drawImage(img, 0, 0, ancho, alto);
-        const resultado = canvas.toDataURL('image/jpeg', calidad);
+        
+        let resultado = canvas.toDataURL('image/jpeg', CONFIG_FOTOS.calidad);
+        // ⚠️ Solo si se pasa mucho, baja calidad POCO a poco — mantiene nitidez lo más posible
+        while (resultado.length > CONFIG_FOTOS.limiteSeguro && CONFIG_FOTOS.calidad > 0.65) {
+          CONFIG_FOTOS.calidad -= 0.05;
+          resultado = canvas.toDataURL('image/jpeg', CONFIG_FOTOS.calidad);
+        }
         resolver(resultado);
       };
       img.src = urlBase64;
     });
   }
 
-  // 📸 PROCESAR FOTOS — NUEVO PRODUCTO
-  window.procesarFotos = async function(event) {
-    const archivos = event.target.files;
-    if (!archivos || archivos.length === 0) return;
-    const barra = document.getElementById('barraSubida');
-    const progreso = document.getElementById('progreso');
-    barra.style.display = "block";
-    let procesadas = 0;
-    const total = archivos.length;
-    const MAX_TAMANO = 800 * 1024;
-
-    for (let i = 0; i < archivos.length; i++) {
-      const archivo = archivos[i];
-      const lector = new FileReader();
-      lector.onload = async function(e) {
-        let urlComprimida = await comprimirImagen(e.target.result, 0.7, 800);
-        while (urlComprimida.length > MAX_TAMANO) {
-          urlComprimida = await comprimirImagen(e.target.result, 0.4, 600);
-          break;
-        }
-        imagenes.push(urlComprimida);
-        procesadas++;
-        progreso.style.width = `${Math.round((procesadas/total)*100)}%`;
+  async function procesarFotos(e) {
+    const archivos = e.target.files; if (!archivos.length) return;
+    const barra=document.getElementById('barraSubida'), prog=document.getElementById('progreso');
+    barra.style.display='block'; let ok=0;
+    for(let f of archivos) {
+      const l=new FileReader();
+      l.onload=async ev=>{
+        const img=await comprimirImagen(ev.target.result);
+        imagenes.push(img); ok++; prog.style.width=`${Math.round((ok/archivos.length)*100)}%`;
         renderizarVistaImagenes();
-        if (procesadas === total) {
-          setTimeout(() => { barra.style.display = "none"; progreso.style.width = "0%"; }, 1000);
-          mostrarMensaje(`✅ ${total} foto(s) cargada(s) 📸`, "exito");
-        }
+        if(ok===archivos.length) setTimeout(()=>{barra.style.display='none';prog.style.width=0},800);
       };
-      lector.readAsDataURL(archivo);
+      l.readAsDataURL(f);
     }
-    event.target.value = "";
-  };
+    e.target.value='';
+  }
 
-  // 📸 PROCESAR FOTOS — EN EDICIÓN
-  window.procesarFotosEditar = async function(event) {
-    const archivos = event.target.files;
-    if (!archivos || archivos.length === 0) return;
-    const MAX_TAMANO = 800 * 1024;
-    for (let i = 0; i < archivos.length; i++) {
-      const archivo = archivos[i];
-      const lector = new FileReader();
-      lector.onload = async function(e) {
-        let urlComprimida = await comprimirImagen(e.target.result, 0.7, 800);
-        while (urlComprimida.length > MAX_TAMANO) {
-          urlComprimida = await comprimirImagen(e.target.result, 0.4, 600);
-          break;
-        }
-        editarImagenes.push(urlComprimida);
-        renderizarEditarFotos();
-      };
-      lector.readAsDataURL(archivo);
+  async function procesarFotosEditar(e) {
+    for(let f of e.target.files) {
+      const l=new FileReader();
+      l.onload=async ev=>{ editarImagenes.push(await comprimirImagen(ev.target.result)); renderizarEditarFotos(); };
+      l.readAsDataURL(f);
     }
-    event.target.value = "";
-  };
+    e.target.value='';
+  }
 
-  // ❌ QUITAR FOTO — NUEVO PRODUCTO
-  window.quitarImagen = function(indice) {
-    imagenes.splice(indice, 1);
-    renderizarVistaImagenes();
-  };
+  window.quitarImagen=i=>{imagenes.splice(i,1);renderizarVistaImagenes();};
+  window.quitarImagenEditar=i=>{editarImagenes.splice(i,1);renderizarEditarFotos();};
+  window.agregarVideo=()=>{const u=document.getElementById('videoUrl').value.trim();if(!u)return;videos.push(u);document.getElementById('videoUrl').value='';renderizarVistaVideos();};
+  window.agregarVideoEditar=()=>{const u=document.getElementById('editarVideoUrl').value.trim();if(!u)return;editarVideos.push(u);document.getElementById('editarVideoUrl').value='';renderizarEditarVideos();};
+  window.quitarVideo=i=>{videos.splice(i,1);renderizarVistaVideos();};
+  window.quitarVideoEditar=i=>{editarVideos.splice(i,1);renderizarEditarVideos();};
 
-  // ❌ QUITAR FOTO — EN EDICIÓN
-  window.quitarImagenEditar = function(indice) {
-    editarImagenes.splice(indice, 1);
-    renderizarEditarFotos();
-  };
-
-  // 🎬 AGREGAR VIDEO — NUEVO PRODUCTO
-  window.agregarVideo = function() {
-    const url = document.getElementById('videoUrl').value.trim();
-    if (!url) { mostrarMensaje("⚠️ Pega el enlace del video", "aviso"); return; }
-    videos.push(url);
-    document.getElementById('videoUrl').value = "";
-    renderizarVistaVideos();
-    mostrarMensaje(`✅ Video agregado 🎬 (total: ${videos.length})`, "exito");
-  };
-
-  // 🎬 AGREGAR VIDEO — EN EDICIÓN
-  window.agregarVideoEditar = function() {
-    const url = document.getElementById('editarVideoUrl').value.trim();
-    if (!url) { mostrarMensaje("⚠️ Pega el enlace del video", "aviso"); return; }
-    editarVideos.push(url);
-    document.getElementById('editarVideoUrl').value = "";
-    renderizarEditarVideos();
-    mostrarMensaje(`✅ Video agregado 🎬`, "exito");
-  };
-
-  // ❌ QUITAR VIDEO — NUEVO PRODUCTO
-  window.quitarVideo = function(indice) {
-    videos.splice(indice, 1);
-    renderizarVistaVideos();
-  };
-
-  // ❌ QUITAR VIDEO — EN EDICIÓN
-  window.quitarVideoEditar = function(indice) {
-    editarVideos.splice(indice, 1);
-    renderizarEditarVideos();
-  };
-
-  // 📸 RENDERIZAR VISTA FOTOS — NUEVO PRODUCTO
   function renderizarVistaImagenes() {
-    const caja = document.getElementById('vistaImagenes');
-    if (imagenes.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu celular o pega un enlace.</p>';
-      return;
-    }
-    caja.innerHTML = imagenes.map((url, i) => `
-      <div class="item-imagen">
-        <img src="${url}" class="preview-imagen" alt="Foto ${i+1}">
-        <button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('vistaImagenes');
+    c.innerHTML=imagenes.length?imagenes.map((u,i)=>`<div class="item-imagen"><img src="${u}" class="preview-imagen"><button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button></div>`).join(''):'<p>Sin fotos.</p>';
   }
-
-  // 🎬 RENDERIZAR VISTA VIDEOS — NUEVO PRODUCTO
   function renderizarVistaVideos() {
-    const caja = document.getElementById('vistaVideos');
-    if (videos.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin videos aún.</p>';
-      return;
-    }
-    caja.innerHTML = videos.map((url, i) => `
-      <div class="item-imagen" style="background:#334155; padding:0.5rem; border-radius:6px; max-width:200px;">
-        <span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span>
-        <button class="btn-quitar-img" onclick="quitarVideo(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('vistaVideos');
+    c.innerHTML=videos.length?videos.map((u,i)=>`<div class="item-imagen" style="background:#334155;padding:0.5rem;border-radius:6px;"><span style="color:#25d363;">🎬 Video ${i+1}</span><button class="btn-quitar-img" onclick="quitarVideo(${i})">×</button></div>`).join(''):'<p>Sin videos.</p>';
   }
-
-  // 📸 RENDERIZAR FOTOS EN EL MODAL DE EDICIÓN
   function renderizarEditarFotos() {
-    const caja = document.getElementById('editarFotosLista');
-    if (editarImagenes.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
-      return;
-    }
-    caja.innerHTML = editarImagenes.map((url, i) => `
-      <div class="miniatura-editar">
-        <img src="${url}" alt="Foto ${i+1}">
-        <button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('editarFotosLista');
+    c.innerHTML=editarImagenes.length?editarImagenes.map((u,i)=>`<div class="miniatura-editar"><img src="${u}"><button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button></div>`).join(''):'<p>Sin fotos.</p>';
   }
-
-  // 🎬 RENDERIZAR VIDEOS EN EL MODAL DE EDICIÓN
   function renderizarEditarVideos() {
-    const caja = document.getElementById('editarVideosLista');
-    if (editarVideos.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin videos.</p>';
-      return;
-    }
-    caja.innerHTML = editarVideos.map((url, i) => `
-      <div class="miniatura-editar" style="background:#334155; padding:0.5rem; border-radius:6px; width:120px; text-align:center;">
-        <span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span>
-        <button class="btn-quitar-mini" onclick="quitarVideoEditar(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('editarVideosLista');
+    c.innerHTML=editarVideos.length?editarVideos.map((u,i)=>`<div class="miniatura-editar" style="background:#334155;padding:0.5rem;border-radius:6px;"><span style="color:#25d363;">🎬 Video ${i+1}</span><button class="btn-quitar-mini" onclick="quitarVideoEditar(${i})">×</button></div>`).join(''):'<p>Sin videos.</p>';
   }
 
-  // ☁️ GUARDAR PRODUCTO NUEVO
-  window.guardarProductoNuevo = async function() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const descripcion = document.getElementById('descripcion').value.trim();
-    const precio = document.getElementById('precio').value.trim();
-
-    if (!nombre || !precio) {
-      mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
-      return;
-    }
-
-    try {
-      const datos = {
-        nombre,
-        descripcion,
-        precio: Number(precio),
-        imagenes: imagenes.length > 0 ? [...imagenes] : ["https://via.placeholder.com/600x400/1e293b/f59e0b?text=" + encodeURIComponent(nombre)],
-        videos: [...videos]
-      };
-
-      await addDoc(collection(db, COLLECTION), datos);
-      mostrarMensaje(`✅ Producto "${nombre}" guardado ☁️📸🎬`, "exito");
-      
-      // 🧹 Limpiar todo
-      document.getElementById('nombre').value = "";
-      document.getElementById('descripcion').value = "";
-      document.getElementById('precio').value = "";
-      document.getElementById('videoUrl').value = "";
-      imagenes = [];
-      videos = [];
-      renderizarVistaImagenes();
-      renderizarVistaVideos();
-      
-      await cargarDesdeNube();
-    } catch (error) {
-      if (error.message.includes("exceeds the maximum allowed size")) {
-        mostrarMensaje("❌ ¡Las fotos pesan demasiado! Usa menos fotos o enlaces 🔗", "error");
-      } else {
-        mostrarMensaje("❌ Error: " + error.message, "error");
-      }
-    }
+  window.guardarProductoNuevo=async()=>{
+    const n=document.getElementById('nombre').value.trim(),d=document.getElementById('descripcion').value.trim(),p=document.getElementById('precio').value.trim();
+    if(!n||!p)return mostrarMensaje("Nombre y precio obligatorios","aviso");
+    try{
+      await addDoc(collection(db,COLLECTION),{nombre:n,descripcion:d,precio:Number(p),imagenes:imagenes.length?[...imagenes]:[`https://via.placeholder.com/800x600/1e293b/f59e0b?text=${encodeURIComponent(n)}`],videos:[...videos]});
+      mostrarMensaje(`✅ "${n}" guardado con fotos nítidas ✨`,"exito");
+      document.getElementById('nombre').value=document.getElementById('descripcion').value=document.getElementById('precio').value=document.getElementById('videoUrl').value='';
+      imagenes=[];videos=[];renderizarVistaImagenes();renderizarVistaVideos();await cargarDesdeNube();
+    }catch(e){mostrarMensaje(e.message.includes("exceeds")?"❌ Usa menos fotos o enlaces 🔗":"Error: "+e.message,"error");}
   };
 
-  // ✏️ ABRIR MODAL DE EDICIÓN COMPLETA
-  window.abrirModalEditar = function(id) {
-    const prod = productos.find(p => p.id === id);
-    if (!prod) return;
-
-    productoEditarId = id;
-    editarImagenes = [...(prod.imagenes || [])];
-    editarVideos = [...(prod.videos || [])];
-
-    document.getElementById('editarNombre').value = prod.nombre || "";
-    document.getElementById('editarDescripcion').value = prod.descripcion || "";
-    document.getElementById('editarPrecio').value = prod.precio || "";
-
-    renderizarEditarFotos();
-    renderizarEditarVideos();
-
-    document.getElementById('modalEditar').classList.remove('oculto');
+  window.abrirModalEditar=id=>{
+    const prod=productos.find(x=>x.id===id);if(!prod)return;
+    productoEditarId=id;editarImagenes=[...(prod.imagenes||[])];editarVideos=[...(prod.videos||[])];
+    document.getElementById('editarNombre').value=prod.nombre||'';document.getElementById('editarDescripcion').value=prod.descripcion||'';document.getElementById('editarPrecio').value=prod.precio||'';
+    renderizarEditarFotos();renderizarEditarVideos();document.getElementById('modalEditar').classList.remove('oculto');
+  };
+  window.cerrarModalEditar=()=>{document.getElementById('modalEditar').classList.add('oculto');productoEditarId=null;editarImagenes=[];editarVideos=[];};
+  window.guardarEdicion=async()=>{
+    const n=document.getElementById('editarNombre').value.trim(),d=document.getElementById('editarDescripcion').value.trim(),p=document.getElementById('editarPrecio').value.trim();
+    if(!n||!p)return mostrarMensaje("Nombre y precio obligatorios","aviso");
+    try{
+      await updateDoc(doc(db,COLLECTION,productoEditarId),{nombre:n,descripcion:d,precio:Number(p),imagenes:editarImagenes.length?[...editarImagenes]:[`https://via.placeholder.com/800x600/1e293b/f59e0b?text=${encodeURIComponent(n)}`],videos:[...editarVideos]});
+      mostrarMensaje("✅ Actualizado con fotos nítidas ✨","exito");cerrarModalEditar();await cargarDesdeNube();
+    }catch(e){mostrarMensaje("Error: "+e.message,"error");}
   };
 
-  // ❌ CERRAR MODAL DE EDICIÓN
-  window.cerrarModalEditar = function() {
-    document.getElementById('modalEditar').classList.add('oculto');
-    productoEditarId = null;
-    editarImagenes = [];
-    editarVideos = [];
+  window.eliminarProducto=async id=>{
+    if(confirm("¿Eliminar producto completo?")){await deleteDoc(doc(db,COLLECTION,id));mostrarMensaje("Eliminado ✅","exito");await cargarDesdeNube();}
   };
 
-  // 💾 GUARDAR CAMBIOS DEL PRODUCTO EDITADO
-  window.guardarEdicion = async function() {
-    const nombre = document.getElementById('editarNombre').value.trim();
-    const descripcion = document.getElementById('editarDescripcion').value.trim();
-    const precio = document.getElementById('editarPrecio').value.trim();
-
-    if (!nombre || !precio) {
-      mostrarMensaje("⚠️ Nombre y precio son obligatorios", "aviso");
-      return;
-    }
-
-    try {
-      const datosActualizados = {
-        nombre,
-        descripcion,
-        precio: Number(precio),
-        imagenes: editarImagenes.length > 0 ? [...editarImagenes] : ["https://via.placeholder.com/600x400/1e293b/f59e0b?text=" + encodeURIComponent(nombre)],
-        videos: [...editarVideos]
-      };
-
-      await updateDoc(doc(db, COLLECTION, productoEditarId), datosActualizados);
-      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬", "exito");
-      cerrarModalEditar();
-      await cargarDesdeNube();
-    } catch (error) {
-      mostrarMensaje("❌ Error: " + error.message, "error");
-    }
-  };
-
-  // 🗑️ ELIMINAR PRODUCTO COMPLETO
-  window.eliminarProducto = async function(id) {
-    if (confirm("⚠️ ¿Seguro que quieres ELIMINAR este producto completo? Se borran TODAS las fotos y videos 📸🎬")) {
-      try {
-        await deleteDoc(doc(db, COLLECTION, id));
-        mostrarMensaje("✅ Producto eliminado completo 🗑️", "exito");
-        await cargarDesdeNube();
-      } catch (error) {
-        mostrarMensaje("❌ Error: " + error.message, "error");
-      }
-    }
-  };
-
-  // ☁️ CARGAR TODOS LOS PRODUCTOS
-  async function cargarDesdeNube() {
-    const lista = document.getElementById('listaProductos');
-    try {
-      const querySnapshot = await getDocs(collection(db, COLLECTION));
-      productos = [];
-      lista.innerHTML = "";
-      document.getElementById('contador').textContent = querySnapshot.size;
-
-      if (querySnapshot.empty) {
-        lista.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';
-        return;
-      }
-
-      querySnapshot.forEach((docSnap) => {
-        const p = docSnap.data();
-        p.id = docSnap.id;
-        productos.push(p);
-
-        const div = document.createElement('div');
-        div.className = "producto-item";
-        div.innerHTML = `
-          <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${p.nombre}</h4>
-          <p style="color:#cbd5e1; margin-bottom:0.5rem;">${p.descripcion || 'Sin descripción'}</p>
-          <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
-          <p style="color:#94a3b8; font-size:0.9rem;">📸 ${(p.imagenes || []).length} foto(s) | 🎬 ${(p.videos || []).length} video(s)</p>
-          <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button>
-            <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
-          </div>
-        `;
-        lista.appendChild(div);
-      });
-    } catch (error) {
-      lista.innerHTML = `<p style="color:#ef4444; text-align:center; padding:2rem;">❌ Error: ${error.message}</p>`;
-    }
+  async function cargarDesdeNube(){
+    const l=document.getElementById('listaProductos');
+    try{
+      const q=await getDocs(collection(db,COLLECTION));productos=[];l.innerHTML='';document.getElementById('contador').textContent=q.size;
+      if(q.empty){l.innerHTML='<p style="color:#94a3b8;text-align:center;padding:2rem;">Sin productos aún.</p>';return;}
+      q.forEach(d=>{const p=d.data();p.id=d.id;productos.push(p);l.innerHTML+=`<div class="producto-item"><h4 style="color:#f59e0b;">${p.nombre}</h4><p style="color:#cbd5e1;">${p.descripcion||'Sin descripción'}</p><p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')}</p><p style="color:#94a3b8;">📸 ${(p.imagenes||[]).length} | 🎬 ${(p.videos||[]).length}</p><div style="display:flex;gap:0.5rem;margin-top:1rem;"><button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar</button><button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️</button></div></div>`;});
+    }catch(e){l.innerHTML=`<p style="color:#ef4444;text-align:center;">Error: ${e.message}</p>`;}
   }
 
-  // 🔁 Auto-login
-  if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
-    document.getElementById('pantallaClave').classList.add('oculto');
-    document.getElementById('panelControl').classList.remove('oculto');
-    setTimeout(cargarDesdeNube, 300);
-  }
+  if(localStorage.getItem(CLAVE_STORAGE)==="autenticado"){document.getElementById('pantallaClave').classList.add('oculto');document.getElementById('panelControl').classList.remove('oculto');setTimeout(cargarDesdeNube,300);}
 </script>
 </body>
 </html>
