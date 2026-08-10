@@ -26,7 +26,32 @@
         .contenedor {max-width:1200px; margin:0 auto; padding:1.5rem;}
         h2 {text-align:center; margin-bottom:2rem; font-size:1.5rem; color:#f59e0b;}
 
-        /* 🎯 BOTÓN SECRETO DE ADMINISTRADOR — OCULTO HASTA QUE SE ACTIVE */
+        /* 🎯 CONTADORES — SOLO VISIBLES PARA ADMINISTRADOR 🔐 */
+        .caja-contadores {
+            display:none; /* ❌ OCULTOS POR DEFECTO — LOS CLIENTES NO LOS VEN */
+            justify-content:center;
+            gap:1.5rem;
+            margin-top:1rem;
+            flex-wrap:wrap;
+            transition:opacity 0.5s ease;
+        }
+        .caja-contadores.visibles {display:flex; opacity:1;} /* ✅ SOLO APARECEN PARA TI */
+        .contador {
+            display:inline-flex;
+            align-items:center;
+            gap:0.5rem;
+            background:#1e293b;
+            padding:0.5rem 1.2rem;
+            border-radius:20px;
+            border:1px solid #334155;
+        }
+        .contador .etiqueta {font-size:0.85rem; color:#94a3b8;}
+        .contador .numero {font-weight:bold; font-size:1.1rem;}
+        .contador.total .numero {color:#94a3b8;}
+        .contador.clientes .numero {color:#25d363;}
+        .contador.hoy .numero {color:#f59e0b;}
+
+        /* 🔐 BOTÓN SECRETO DE ADMINISTRADOR */
         .boton-admin-secreto {
             position:fixed;
             top:50%; left:50%;
@@ -66,7 +91,7 @@
         }
         .mensaje-admin.activo {opacity:1; visibility:visible; transform:translateX(-50%) translateY(-10px);}
 
-        /* ========== RESTO DE ESTILOS — TODO IGUAL ========== */
+        /* ========== PRODUCTOS Y GALERÍA — TODO IGUAL HERMOSO ========== */
         .producto {background:#1e293b; border-radius:16px; padding:1.5rem; margin-bottom:2rem; overflow:hidden;}
         .producto-contenido {display:grid; grid-template-columns:1fr 1fr; gap:2rem;}
         
@@ -227,28 +252,6 @@
         }
         .mensaje-copiado.activo {opacity:1; visibility:visible; transform:translateX(-50%) translateY(0);}
 
-        .caja-contadores {
-            display:flex;
-            justify-content:center;
-            gap:1.5rem;
-            margin-top:1rem;
-            flex-wrap:wrap;
-        }
-        .contador {
-            display:inline-flex;
-            align-items:center;
-            gap:0.5rem;
-            background:#1e293b;
-            padding:0.5rem 1.2rem;
-            border-radius:20px;
-            border:1px solid #334155;
-        }
-        .contador .etiqueta {font-size:0.85rem; color:#94a3b8;}
-        .contador .numero {font-weight:bold; font-size:1.1rem;}
-        .contador.total .numero {color:#94a3b8;}
-        .contador.clientes .numero {color:#25d363;}
-        .contador.hoy .numero {color:#f59e0b;}
-
         @media (max-width:768px) {
             .producto-contenido {grid-template-columns:1fr;}
             .caja-imagen-principal {height:300px;}
@@ -269,17 +272,16 @@
     </style>
 </head>
 <body>
-    <!-- 🔐 BOTÓN SECRETO DE ADMINISTRADOR — SOLO TÚ LO VES -->
+    <!-- 🔐 BOTÓN SECRETO DE ADMINISTRADOR -->
     <button class="boton-admin-secreto" id="botonAdmin" onclick="activarModoAdmin()">🔐 Activar Modo Administrador</button>
-    <div class="mensaje-admin" id="mensajeAdmin">✅ ¡Modo Administrador activado! Tus visitas ya NO se cuentan 🎯</div>
+    <div class="mensaje-admin" id="mensajeAdmin">✅ ¡Modo Administrador activado! Tus visitas ya NO se cuentan y ves las estadísticas 🎯</div>
 
     <header>
-        <!-- 🎯 TÍTULO CLICKEABLE — PRESIONA 5 VECES PARA MOSTRAR EL BOTÓN SECRETO -->
         <h1 id="tituloTienda" onclick="contarClicsAdmin()">🏍️ FULL INYECCIÓN</h1>
         <p class="subtitulo">Cables, Escáneres y Herramientas de Diagnóstico para Motos y Carros</p>
         
-        <!-- 📊 CONTADORES INTELIGENTES -->
-        <div class="caja-contadores">
+        <!-- 📊 CONTADORES — SOLO VISIBLES CUANDO TÚ LO ACTIVES 🔐 -->
+        <div class="caja-contadores" id="cajaContadores">
             <div class="contador total">
                 <span class="etiqueta">👁️ Total:</span>
                 <span class="numero" id="contador-total">0</span>
@@ -320,7 +322,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, setDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
@@ -335,42 +337,42 @@
   const db = getFirestore(app);
 
   // ==============================================
-  // 🎯 BOTÓN SECRETO — SIN NECESIDAD DE ESCRIBIR NADA EN LA BARRA 🚫📝
+  // 🎯 SISTEMA DE CONTADORES PRIVADOS — SOLO TÚ LOS VES 🔐
   // ==============================================
   let contadorClicsTitulo = 0;
   let temporizadorClics = null;
 
-  // 🖱️ PRESIONA 5 VECES RÁPIDO SOBRE "🏍️ FULL INYECCIÓN" → APARECE EL BOTÓN SECRETO
+  // 🖱️ PRESIONA 5 VECES RÁPIDO SOBRE EL TÍTULO → APARECE EL BOTÓN SECRETO
   window.contarClicsAdmin = function() {
     contadorClicsTitulo++;
     clearTimeout(temporizadorClics);
     
     if (contadorClicsTitulo === 5) {
-      // 🎉 ¡5 clics! Mostrar el botón secreto
       document.getElementById('botonAdmin').classList.add('activo');
       contadorClicsTitulo = 0;
       console.log('🔐 Botón de administrador revelado ✅');
     } else {
-      // ⏱️ Si tardas más de 2 segundos entre clics → reiniciar
       temporizadorClics = setTimeout(() => {
         contadorClicsTitulo = 0;
       }, 2000);
     }
   };
 
-  // 🔐 ACTIVAR MODO ADMINISTRADOR — SOLO LE DAS CLIC AL BOTÓN
+  // 🔐 ACTIVAR MODO ADMINISTRADOR — APARECEN LOS CONTADORES
   window.activarModoAdmin = function() {
     localStorage.setItem('soyAdmin', 'SI');
     document.getElementById('botonAdmin').classList.remove('activo');
+    document.getElementById('cajaContadores').classList.add('visibles'); // ✅ APARECEN LOS NÚMEROS SOLO PARA TI
+    
     const aviso = document.getElementById('mensajeAdmin');
     aviso.classList.add('activo');
-    setTimeout(() => aviso.classList.remove('activo'), 3000);
-    console.log('✅ Modo Administrador activado — tus visitas ya no se cuentan 🎯');
+    setTimeout(() => aviso.classList.remove('activo'), 3500);
+    console.log('✅ Modo Administrador activado — ves estadísticas y tus visitas NO se cuentan 🎯');
   };
 
-  // 🧠 SABER SI ERES ADMINISTRADOR
+  // 🧠 VERIFICAR SI YA ERES ADMINISTRADOR AL CARGAR LA PÁGINA
   const esAdministrador = () => localStorage.getItem('soyAdmin') === 'SI';
-
+  
   // 📌 IDENTIFICADOR ÚNICO DEL VISITANTE
   const obtenerIdVisitante = () => {
     let id = localStorage.getItem('visitanteId');
@@ -382,6 +384,13 @@
   };
 
   const fechaHoy = () => new Date().toISOString().split('T')[0];
+
+  // 📊 MOSTRAR CONTADORES AUTOMÁTICAMENTE SI YA ERES ADMIN
+  function mostrarContadoresSiEresAdmin() {
+    if (esAdministrador()) {
+      document.getElementById('cajaContadores').classList.add('visibles');
+    }
+  }
 
   // 👁️ CONTADOR INTELIGENTE — EXCLUYE AL ADMINISTRADOR
   async function contarVisitaInteligente() {
@@ -414,7 +423,7 @@
         await setDoc(refStats, datos, { merge: true });
       }
 
-      // 📊 ACTUALIZAR NÚMEROS
+      // 📊 ACTUALIZAR NÚMEROS (solo se ven si eres admin)
       document.getElementById('contador-total').textContent = (datos.total || 0).toLocaleString('es-ES');
       document.getElementById('contador-clientes').textContent = (datos.clientesUnicos || 0).toLocaleString('es-ES');
       document.getElementById('contador-hoy').textContent = (datos.porDia[hoy] || 0).toLocaleString('es-ES');
@@ -424,6 +433,8 @@
     }
   }
 
+  // 🚀 INICIALIZAR TODO
+  mostrarContadoresSiEresAdmin(); // ✅ Si ya eres admin → aparecen los números solos
   contarVisitaInteligente();
 
   // 📸 GALERÍA — TODO IGUAL ✅
@@ -582,5 +593,3 @@
 </script>
 </body>
 </html>
-
-  
