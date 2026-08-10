@@ -65,6 +65,7 @@
         .aviso-limite {background:rgba(245,158,11,0.15); border:1px solid #f59e0b; padding:0.6rem; border-radius:6px; margin:0.8rem 0; font-size:0.9rem; color:#fbbf24;}
         .galeria-fotos {display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:0.5rem; margin:0.8rem 0;}
         .galeria-fotos img {width:100%; height:80px; object-fit:cover; border-radius:6px; border:2px solid #475569;}
+        .foto-item-editar {position:relative; display:inline-block; margin:5px;}
     </style>
 </head>
 <body>
@@ -230,6 +231,7 @@
   };
 
   window.cerrarSesion = () => { localStorage.removeItem(CLAVE_STORAGE); location.reload(); };
+  
   function mostrarMensaje(texto, tipo) {
     const m = document.getElementById('mensaje');
     m.textContent = texto;
@@ -394,7 +396,8 @@
   };
 
   window.quitarImagen = i => {imagenes.splice(i,1); actualizarContador(); renderizarVistaImagenes();};
-  window.quitarImagenEditar = i => {
+  
+  window.quitarImagenEditar = function(i) {
     const totalExistentes = editarImagenesUrls.length;
     if (i < totalExistentes) {
       editarImagenesUrls.splice(i, 1);
@@ -428,9 +431,11 @@
     if (todasLasFotos.length === 0) {
       c.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
     } else {
-      c.innerHTML = todasLasFotos.map((u, i) => `
-        <div class="miniatura-editar">
-          <img src="${u}" alt="Foto ${i+1}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2275%22 height=%2255%22%3E%3Crect width=%2275%22 height=%2255%22 fill=%22%23334155%22/%3E%3Ctext x=%2237%22 y=%2230%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2212%22 font-family=%22Arial%22%3E📷%3C/text%3E%3C/svg%3E'">
+      c.innerHTML = todasLasFotos.map((url, i) => `
+        <div class="foto-item-editar">
+          <img src="${url}" style="width:75px; height:55px; object-fit:cover; border-radius:6px; border:2px solid #475569; background:#1e293b;" 
+               alt="Foto ${i+1}" loading="lazy" 
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2275%22 height=%2255%22%3E%3Crect width=%2275%22 height=%2255%22 fill=%22%23334155%22/%3E%3Ctext x=%2237%22 y=%2230%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2212%22 font-family=%22Arial%22%3E📷%3C/text%3E%3C/svg%3E'">
           <button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button>
         </div>
       `).join('');
@@ -505,12 +510,24 @@
 
   window.abrirModalEditar = function(id) {
     const prod = productos.find(x => x.id === id);
-    if (!prod) return;
+    if (!prod) {
+      mostrarMensaje("⚠️ Producto no encontrado", "error");
+      return;
+    }
     
     productoEditarId = id;
-    editarImagenesUrls = [...(prod.imagenes || [])];
+    editarImagenesUrls = [];
     editarImagenesNuevas = [];
-    editarVideos = [...(prod.videos || [])];
+    editarVideos = [];
+    
+    // Validar que las imágenes existan y sean URLs válidas
+    if (prod.imagenes && Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+      editarImagenesUrls = prod.imagenes.filter(url => url && url.startsWith('http'));
+    }
+    
+    if (prod.videos && Array.isArray(prod.videos)) {
+      editarVideos = [...prod.videos];
+    }
     
     document.getElementById('editarNombre').value = prod.nombre || '';
     document.getElementById('editarDescripcion').value = prod.descripcion || '';
@@ -537,8 +554,9 @@
     if(!n||!p) return mostrarMensaje("⚠️ Nombre y precio obligatorios","aviso");
     
     try {
-      mostrarMensaje("⏳ Subiendo nuevas fotos a Storage...", "aviso");
+      mostrarMensaje("⏳ Procesando cambios...", "aviso");
       
+      // Subir las nuevas fotos a Storage
       const nuevasUrls = [];
       if (editarImagenesNuevas.length > 0) {
         for (let i = 0; i < editarImagenesNuevas.length; i++) {
@@ -551,6 +569,7 @@
         }
       }
       
+      // Combinar URLs existentes + nuevas
       const todasLasUrls = [...editarImagenesUrls, ...nuevasUrls];
       
       if (todasLasUrls.length === 0) {
@@ -665,4 +684,4 @@
   }
 </script>
 </body>
-</html>            
+</html>
