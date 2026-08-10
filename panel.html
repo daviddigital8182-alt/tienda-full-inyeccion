@@ -32,10 +32,15 @@
         .error {background:#dc2626; color:white;}
         .clave-input {max-width:350px; margin:3rem auto; display:block;}
         .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem; text-align:center;}
-        .btn-whatsapp {background:#25d363; color:white; margin-top:1rem;}
-        .estado-nube {padding:0.5rem; border-radius:6px; margin-bottom:1rem; text-align:center; font-size:0.9rem;}
+        .estado-nube {padding:0.5rem; border-radius:6px; margin-bottom:1rem; text-align:center; font-weight:bold;}
         .conectado {background:#16a34a; color:white;}
         .desconectado {background:#dc2626; color:white;}
+        
+        /* 📸 Galería de imágenes en el panel */
+        .preview-imagen {width:100px; height:80px; object-fit:cover; border-radius:6px; margin:0.5rem; border:2px solid #475569;}
+        .lista-imagenes {display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0;}
+        .item-imagen {position:relative;}
+        .btn-quitar-img {position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
     </style>
 </head>
 <body>
@@ -50,7 +55,7 @@
             <h2 style="text-align:center;">🔑 Ingresa tu clave</h2>
             <input type="password" id="inputClave" placeholder="Escribe tu clave secreta">
             <button class="btn-amarillo" onclick="verificarClave()">🔓 Entrar al Panel</button>
-            <button class="btn-whatsapp" onclick="localStorage.clear(); location.reload();">🔄 Restablecer si olvidaste tu clave</button>
+            <button class="btn-nube" onclick="localStorage.clear(); location.reload();">🔄 Restablecer</button>
             <p class="instruccion">💡 Clave por defecto: <strong>admin123</strong></p>
         </div>
     </div>
@@ -59,22 +64,34 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
-            <p class="subtitulo">Agrega, edita y organiza tus productos en la nube ☁️</p>
+            <p class="subtitulo">Agrega productos con fotos y videos en la nube ☁️</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
 
         <div class="contenedor">
-            <!-- ✅ MENSAJE DE CONFIRMACIÓN -->
             <div id="mensaje" class="mensaje oculto"></div>
 
-            <!-- ➕ AGREGAR PRODUCTO -->
+            <!-- ➕ AGREGAR PRODUCTO CON FOTOS Y VIDEOS -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
-                <textarea id="descripcion" rows="3" placeholder="Descripción del producto"></textarea>
-                <input type="text" id="precio" placeholder="Precio: ej. 45000">
-                <button class="btn-nube" onclick="guardarEnNube()">☁️ Guardar en la Nube</button>
+                <textarea id="descripcion" rows="3" placeholder="Descripción detallada"></textarea>
+                <input type="number" id="precio" placeholder="Precio sin puntos: ej. 45000">
+                
+                <!-- 📸 IMÁGENES - Agregar múltiples -->
+                <h3 style="color:#94a3b8; margin:1rem 0 0.5rem;">📸 Imágenes del producto</h3>
+                <input type="text" id="imagenUrl" placeholder="Pega el enlace de una imagen (ej: https://i.imgur.com/abc.jpg)">
+                <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarImagen()">➕ Agregar imagen</button>
+                <div class="lista-imagenes" id="vistaImagenes">
+                    <p style="color:#64748b; font-size:0.9rem;">Sin imágenes aún. Agrega enlaces de fotos arriba.</p>
+                </div>
+
+                <!-- 🎬 VIDEOS -->
+                <h3 style="color:#94a3b8; margin:1.5rem 0 0.5rem;">🎬 Video del producto (opcional)</h3>
+                <input type="text" id="videoUrl" placeholder="Enlace de YouTube: ej: https://www.youtube.com/embed/ABC123">
+
+                <button class="btn-verde" onclick="guardarEnNube()" style="margin-top:1.5rem; font-size:1.1rem;">☁️ Guardar Producto Completo</button>
             </div>
 
             <!-- 📦 LISTA DE PRODUCTOS -->
@@ -87,15 +104,10 @@
         </div>
     </div>
 
-<!-- ==============================================
-     ✅ FIREBASE - CONEXIÓN A LA NUBE
-     ============================================== -->
 <script type="module">
-  // Importar funciones de Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // Tu configuración real
   const firebaseConfig = {
     apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
     authDomain: "full-inyeccion.firebaseapp.com",
@@ -105,23 +117,23 @@
     appId: "1:279801018722:web:ba3c95e7598ebebdadd43b"
   };
 
-  // Inicializar
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const COLLECTION = "productos";
-
-  // 🔐 CLAVE
   const CLAVE_SECRETA = "admin123";
   const CLAVE_STORAGE = "fullinyeccion_clave";
 
+  let imagenes = [];
   let productos = [];
 
   // ✅ Estado de conexión
   document.addEventListener('DOMContentLoaded', () => {
     const estado = document.getElementById('estadoNube');
     if (estado) {
-      estado.textContent = "✅ Conectado a la Nube ☁️";
-      estado.className = "estado-nube conectado";
+      setTimeout(() => {
+        estado.textContent = "✅ Conectado a la Nube ☁️";
+        estado.className = "estado-nube conectado";
+      }, 500);
     }
   });
 
@@ -135,7 +147,7 @@
       cargarDesdeNube();
       mostrarMensaje("✅ ¡Bienvenido! Conectado a la nube ☁️", "exito");
     } else {
-      mostrarMensaje("❌ Clave incorrecta — vuelve a intentar", "aviso");
+      mostrarMensaje("❌ Clave incorrecta", "aviso");
     }
   };
 
@@ -154,11 +166,46 @@
     setTimeout(() => caja.classList.add('oculto'), 4000);
   }
 
-  // ☁️ Guardar producto en la nube
+  // 📸 Agregar imagen a la lista previa
+  window.agregarImagen = function() {
+    const url = document.getElementById('imagenUrl').value.trim();
+    if (!url) {
+      mostrarMensaje("⚠️ Escribe el enlace de la imagen", "aviso");
+      return;
+    }
+    imagenes.push(url);
+    document.getElementById('imagenUrl').value = "";
+    renderizarVistaImagenes();
+    mostrarMensaje(`✅ Imagen agregada (total: ${imagenes.length})`, "exito");
+  };
+
+  // 📸 Quitar imagen de la lista
+  window.quitarImagen = function(indice) {
+    imagenes.splice(indice, 1);
+    renderizarVistaImagenes();
+  };
+
+  // 📸 Renderizar vista previa de imágenes
+  function renderizarVistaImagenes() {
+    const contenedor = document.getElementById('vistaImagenes');
+    if (imagenes.length === 0) {
+      contenedor.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin imágenes aún. Agrega enlaces de fotos arriba.</p>';
+      return;
+    }
+    contenedor.innerHTML = imagenes.map((url, i) => `
+      <div class="item-imagen">
+        <img src="${url}" class="preview-imagen" alt="Imagen ${i+1}" onerror="this.src='https://via.placeholder.com/100x80/334155/94a3b8?text=❌'">
+        <button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button>
+      </div>
+    `).join('');
+  }
+
+  // ☁️ Guardar producto completo en la nube
   window.guardarEnNube = async function() {
     const nombre = document.getElementById('nombre').value.trim();
     const descripcion = document.getElementById('descripcion').value.trim();
     const precio = document.getElementById('precio').value.trim();
+    const videoUrl = document.getElementById('videoUrl').value.trim();
 
     if (!nombre || !precio) {
       mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
@@ -166,22 +213,29 @@
     }
 
     try {
-      await addDoc(collection(db, COLLECTION), {
+      const datos = {
         nombre,
         descripcion,
-        precio: Number(precio)
-      });
+        precio: Number(precio),
+        imagenes: imagenes.length > 0 ? [...imagenes] : ["https://via.placeholder.com/600x400/1e293b/f59e0b?text=" + encodeURIComponent(nombre)],
+        videos: videoUrl ? [videoUrl] : []
+      };
+
+      await addDoc(collection(db, COLLECTION), datos);
       mostrarMensaje(`✅ Producto "${nombre}" guardado en la nube ☁️`, "exito");
       
-      // Limpiar campos
+      // Limpiar todo
       document.getElementById('nombre').value = "";
       document.getElementById('descripcion').value = "";
       document.getElementById('precio').value = "";
+      document.getElementById('imagenUrl').value = "";
+      document.getElementById('videoUrl').value = "";
+      imagenes = [];
+      renderizarVistaImagenes();
       
-      // Recargar lista
       await cargarDesdeNube();
     } catch (error) {
-      mostrarMensaje("❌ Error al guardar: " + error.message, "error");
+      mostrarMensaje("❌ Error: " + error.message, "error");
     }
   };
 
@@ -210,6 +264,7 @@
           <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${p.nombre}</h4>
           <p style="color:#cbd5e1; margin-bottom:0.5rem;">${p.descripcion || 'Sin descripción'}</p>
           <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
+          <p style="color:#94a3b8; font-size:0.9rem;">📸 ${(p.imagenes || []).length} imagen(es) ${(p.videos || []).length > 0 ? '| 🎬 1 video' : ''}</p>
           <div style="display:flex; gap:0.5rem; margin-top:1rem;">
             <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="editarProducto('${p.id}')">✏️ Editar</button>
             <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
@@ -218,19 +273,19 @@
         lista.appendChild(div);
       });
     } catch (error) {
-      lista.innerHTML = `<p style="color:#ef4444; text-align:center; padding:2rem;">❌ Error al cargar: ${error.message}</p>`;
+      lista.innerHTML = `<p style="color:#ef4444; text-align:center; padding:2rem;">❌ Error: ${error.message}</p>`;
     }
   }
 
   // 🗑️ Eliminar producto
   window.eliminarProducto = async function(id) {
-    if (confirm("¿Seguro que quieres eliminar este producto de la nube?")) {
+    if (confirm("¿Seguro que quieres eliminar este producto?")) {
       try {
         await deleteDoc(doc(db, COLLECTION, id));
         mostrarMensaje("✅ Producto eliminado de la nube ☁️", "exito");
         await cargarDesdeNube();
       } catch (error) {
-        mostrarMensaje("❌ Error al eliminar: " + error.message, "error");
+        mostrarMensaje("❌ Error: " + error.message, "error");
       }
     }
   };
@@ -253,10 +308,10 @@
         descripcion: nuevaDesc,
         precio: Number(nuevoPrecio)
       });
-      mostrarMensaje("✅ Producto actualizado en la nube ☁️", "exito");
+      mostrarMensaje("✅ Producto actualizado ☁️", "exito");
       await cargarDesdeNube();
     } catch (error) {
-      mostrarMensaje("❌ Error al editar: " + error.message, "error");
+      mostrarMensaje("❌ Error: " + error.message, "error");
     }
   };
 
