@@ -6,13 +6,13 @@
     <title>Full Inyección - Escáneres y Cables para Motos y Carros</title>
     <style>
         * {margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
-        body {background:#0f172a; color:#f8fafc;}
+        body {background:#0f172a; color:#f8fafc; padding-bottom:80px;}
         header {background:#1e293b; padding:1.5rem; text-align:center; border-bottom:3px solid #f59e0b;}
         h1 {color:#f59e0b; font-size:1.6rem;}
         .subtitulo {color:#94a3b8; margin-top:0.5rem; font-size:0.95rem;}
         .contenedor {max-width:1200px; margin:0 auto; padding:1.5rem;}
         h2 {text-align:center; margin-bottom:2rem; font-size:1.5rem; color:#f59e0b;}
-        .productos {display:grid; grid-template-columns:1fr; gap:1.5rem;}
+        .productos {display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;}
         .producto {background:#1e293b; border-radius:12px; padding:1.2rem; border:2px solid transparent;}
         .producto h3 {color:#f59e0b; margin-bottom:0.8rem; font-size:1.1rem;}
         .precio {font-size:1.3rem; font-weight:bold; color:#22c55e; margin:1rem 0;}
@@ -21,6 +21,7 @@
         footer {text-align:center; padding:2rem; color:#64748b; margin-top:2rem; border-top:1px solid #334155; font-size:0.9rem;}
         .admin-link {text-align:center; margin-top:2rem;}
         .admin-link a {color:#64748b; font-size:0.85rem; text-decoration:none;}
+        .cargando {text-align:center; color:#94a3b8; padding:2rem;}
     </style>
 </head>
 <body>
@@ -32,42 +33,8 @@
     <div class="contenedor">
         <h2>📦 Nuestros Productos</h2>
         
-        <div class="productos">
-            <div class="producto">
-                <h3>🔌 Escáner ELM327 v1.5</h3>
-                <p>Diagnóstico OBD2 para carros y motos. Lectura de códigos y sensores en tiempo real.</p>
-                <div class="precio">$ 45.000 COP</div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v1.5" target="_blank">
-                    <button>💬 Pedir por WhatsApp</button>
-                </a>
-            </div>
-
-            <div class="producto">
-                <h3>🔌 Escáner ELM327 v2.1 Bluetooth</h3>
-                <p>Conexión inalámbrica, compatible con Android y iPhone. Más rápido y estable.</p>
-                <div class="precio">$ 65.000 COP</div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v2.1" target="_blank">
-                    <button>💬 Pedir por WhatsApp</button>
-                </a>
-            </div>
-
-            <div class="producto">
-                <h3>🔗 Cable K-Line para Motos</h3>
-                <p>Compatible con Bajaj Pulsar, Honda, Yamaha y más. Diagnóstico ISO 9141-2.</p>
-                <div class="precio">$ 35.000 COP</div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable K-Line para Motos" target="_blank">
-                    <button>💬 Pedir por WhatsApp</button>
-                </a>
-            </div>
-
-            <div class="producto">
-                <h3>🔗 Cable OBD2 Universal 16 pines</h3>
-                <p>Cable de conexión blindado de alta calidad para escáneres.</p>
-                <div class="precio">$ 28.000 COP</div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable OBD2 Universal" target="_blank">
-                    <button>💬 Pedir por WhatsApp</button>
-                </a>
-            </div>
+        <div class="productos" id="lista-productos">
+            <div class="cargando">Cargando productos...</div>
         </div>
 
         <div class="admin-link">
@@ -81,5 +48,95 @@
         <p>🚚 Envíos a todo el país</p>
         <p>🏍️ Full Inyección © 2026</p>
     </footer>
+
+<!-- ==============================================
+     ✅ CONFIGURACIÓN DE FIREBASE - CÓDIGO REAL
+     ============================================== -->
+<script type="module">
+  // Importar las funciones necesarias del SDK de Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // Tu configuración real de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
+    authDomain: "full-inyeccion.firebaseapp.com",
+    projectId: "full-inyeccion",
+    storageBucket: "full-inyeccion.firebasestorage.app",
+    messagingSenderId: "279801018722",
+    appId: "1:279801018722:web:ba3c95e7598ebebdadd43b"
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Cargar productos desde la base de datos
+  async function cargarProductos() {
+    const contenedor = document.getElementById('lista-productos');
+    try {
+      const querySnapshot = await getDocs(collection(db, "productos"));
+      contenedor.innerHTML = "";
+      
+      if (querySnapshot.empty) {
+        contenedor.innerHTML = '<p style="text-align:center; color:#94a3b8; grid-column:1/-1;">No hay productos aún. Agrega productos desde tu Panel de Control.</p>';
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const p = doc.data();
+        const productoHTML = `
+            <div class="producto">
+                <h3>${p.nombre || "Producto sin nombre"}</h3>
+                <p>${p.descripcion || ""}</p>
+                <div class="precio">$ ${p.precio ? Number(p.precio).toLocaleString('es-CO') : "0"} COP</div>
+                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar: ${encodeURIComponent(p.nombre || '')}" target="_blank">
+                    <button>💬 Pedir por WhatsApp</button>
+                </a>
+            </div>
+        `;
+        contenedor.innerHTML += productoHTML;
+      });
+    } catch (error) {
+      contenedor.innerHTML = `
+        <div class="producto">
+            <h3>🔌 Escáner ELM327 v1.5</h3>
+            <p>Diagnóstico OBD2 para carros y motos. Lectura de códigos y sensores en tiempo real.</p>
+            <div class="precio">$ 45.000 COP</div>
+            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v1.5" target="_blank">
+                <button>💬 Pedir por WhatsApp</button>
+            </a>
+        </div>
+        <div class="producto">
+            <h3>🔌 Escáner ELM327 v2.1 Bluetooth</h3>
+            <p>Conexión inalámbrica, compatible con Android y iPhone. Más rápido y estable.</p>
+            <div class="precio">$ 65.000 COP</div>
+            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v2.1" target="_blank">
+                <button>💬 Pedir por WhatsApp</button>
+            </a>
+        </div>
+        <div class="producto">
+            <h3>🔗 Cable K-Line para Motos</h3>
+            <p>Compatible con Bajaj Pulsar, Honda, Yamaha y más. Diagnóstico ISO 9141-2.</p>
+            <div class="precio">$ 35.000 COP</div>
+            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable K-Line para Motos" target="_blank">
+                <button>💬 Pedir por WhatsApp</button>
+            </a>
+        </div>
+        <div class="producto">
+            <h3>🔗 Cable OBD2 Universal 16 pines</h3>
+            <p>Cable de conexión blindado de alta calidad para escáneres.</p>
+            <div class="precio">$ 28.000 COP</div>
+            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable OBD2 Universal" target="_blank">
+                <button>💬 Pedir por WhatsApp</button>
+            </a>
+        </div>
+      `;
+    }
+  }
+
+  // Cargar productos cuando la página esté lista
+  document.addEventListener('DOMContentLoaded', cargarProductos);
+</script>
 </body>
 </html>
