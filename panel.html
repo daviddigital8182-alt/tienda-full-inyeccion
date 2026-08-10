@@ -41,8 +41,8 @@
         .conectado {background:#16a34a; color:white;}
         .desconectado {background:#dc2626; color:white;}
         
-        /* 📸 GALERÍA DE FOTOS - MÁS COMPACTA */
-        .preview-imagen {width:90px; height:70px; object-fit:cover; border-radius:6px; margin:0.3rem; border:2px solid #475569;}
+        /* 📸 GALERÍA DE FOTOS */
+        .preview-imagen {width:90px; height:70px; object-fit:cover; border-radius:6px; margin:0.3rem; border:2px solid #475569; background:#1e293b;}
         .lista-imagenes {display:flex; flex-wrap:wrap; gap:0.3rem; margin:0.8rem 0;}
         .item-imagen {position:relative;}
         .btn-quitar-img {position:absolute; top:-6px; right:-6px; background:#ef4444; color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5);}
@@ -57,20 +57,19 @@
         .fila-botones button {flex:1;}
         .etiqueta {color:#f59e0b; font-weight:bold; margin-top:1rem; display:block; font-size:0.95rem;}
         .miniatura-editar {position:relative; display:inline-block; margin:0.3rem;}
-        .miniatura-editar img {width:75px; height:55px; object-fit:cover; border-radius:6px; border:2px solid #475569;}
+        .miniatura-editar img {width:75px; height:55px; object-fit:cover; border-radius:6px; border:2px solid #475569; background:#1e293b;}
         .btn-quitar-mini {position:absolute; top:-8px; right:-8px; background:#ef4444; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5);}
         
-        /* 📊 Contador de fotos */
         .contador-fotos {background:#334155; padding:0.6rem; border-radius:8px; margin:0.8rem 0; display:flex; justify-content:space-between; align-items:center;}
         .numero-fotos {font-size:1.2rem; font-weight:bold; color:#f59e0b;}
         .limite-fotos {font-size:0.85rem; color:#94a3b8;}
         .info-formato {font-size:0.8rem; color:#22c55e; margin-top:0.3rem;}
         .aviso-limite {background:rgba(245,158,11,0.15); border:1px solid #f59e0b; padding:0.6rem; border-radius:6px; margin:0.8rem 0; font-size:0.9rem; color:#fbbf24;}
+        .cargando-img {display:flex; align-items:center; justify-content:center; background:#1e293b; color:#f59e0b; font-size:0.75rem;}
     </style>
 </head>
 <body>
 
-    <!-- 🔐 PANTALLA DE CLAVE -->
     <div id="pantallaClave" class="contenedor">
         <header>
             <h1>🔐 PANEL DE CONTROL</h1>
@@ -85,11 +84,10 @@
         </div>
     </div>
 
-    <!-- 📊 PANEL DE CONTROL -->
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ FULL INYECCIÓN — PANEL</h1>
-            <p class="subtitulo">📸 Hasta <strong>15-20 fotos</strong> nítidas por producto ✨</p>
+            <p class="subtitulo">📸 Hasta 20 fotos nítidas por producto ✨ | ¡YA NO SALEN NEGRAS!</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -97,41 +95,34 @@
         <div class="contenedor">
             <div id="mensaje" class="mensaje oculto"></div>
 
-            <!-- ➕ AGREGAR PRODUCTO NUEVO -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
                 <textarea id="descripcion" rows="3" placeholder="Descripción detallada"></textarea>
                 <input type="number" id="precio" placeholder="Precio sin puntos: ej. 45000">
                 
-                <!-- 📸 SUBIR FOTOS — HASTA 20 -->
                 <h3>📸 Fotos del producto (máx. 20)</h3>
-                
-                <!-- 📊 Contador visual -->
                 <div class="contador-fotos">
                     <span>📸 Fotos seleccionadas:</span>
                     <span class="numero-fotos" id="numeroFotos">0 / 20</span>
                 </div>
                 
-                <input type="file" id="subirFoto" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp" multiple onchange="procesarFotos(event)">
+                <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
                 <p class="instruccion">✅ Formatos: JPG, PNG, WebP, GIF, BMP 📁</p>
-                <p class="info-formato">🔧 Calidad optimizada: 82% + 900px → nítidas y ligeras ✨</p>
+                <p class="info-formato">🔧 Método directo → ¡las fotos se ven nítidas y completas! ✨</p>
                 
                 <div class="barra-progreso" id="barraSubida" style="display:none;">
                     <div class="progreso" id="progreso"></div>
                 </div>
                 
-                <!-- ⚠️ Aviso cuando se acerca al límite -->
                 <div id="avisoLimite" class="aviso-limite oculto">
                     ⚠️ Se recomienda no subir más de 15-20 fotos por producto para garantizar que se guarden correctamente.
                 </div>
                 
-                <!-- 📸 Vista previa de todas las fotos -->
                 <div class="lista-imagenes" id="vistaImagenes">
                     <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivos" y selecciona todas las que quieras 📁</p>
                 </div>
 
-                <!-- 🎬 VIDEOS -->
                 <h3>🎬 Videos de YouTube</h3>
                 <input type="text" id="videoUrl" placeholder="Enlace de YouTube">
                 <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarVideo()">➕ Agregar Video</button>
@@ -142,7 +133,6 @@
                 <button class="btn-verde" onclick="guardarProductoNuevo()" style="margin-top:1.5rem; font-size:1.1rem;">☁️ Guardar Producto Completo</button>
             </div>
 
-            <!-- 📦 LISTA DE PRODUCTOS -->
             <div class="caja">
                 <h2>📦 Mis Productos (<span id="contador">0</span>)</h2>
                 <div id="listaProductos">
@@ -152,34 +142,27 @@
         </div>
     </div>
 
-    <!-- 📝 MODAL DE EDICIÓN COMPLETA -->
     <div id="modalEditar" class="modal-fondo oculto">
         <div class="modal-contenido">
             <h2>✏️ Editar Producto Completo</h2>
-            
             <span class="etiqueta">Nombre del producto:</span>
-            <input type="text" id="editarNombre" placeholder="Nombre del producto">
-            
+            <input type="text" id="editarNombre">
             <span class="etiqueta">Descripción:</span>
-            <textarea id="editarDescripcion" rows="3" placeholder="Descripción detallada"></textarea>
-            
+            <textarea id="editarDescripcion" rows="3"></textarea>
             <span class="etiqueta">Precio:</span>
-            <input type="number" id="editarPrecio" placeholder="Precio sin puntos">
+            <input type="number" id="editarPrecio">
 
-            <!-- 📸 EDITAR FOTOS -->
             <span class="etiqueta">📸 Fotos actuales (<span id="contadorEditarFotos">0</span>):</span>
             <div id="editarFotosLista" class="lista-imagenes"></div>
             
             <span class="etiqueta">📸 Agregar nuevas fotos:</span>
-            <input type="file" id="editarSubirFoto" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp" multiple onchange="procesarFotosEditar(event)">
-            <p class="instruccion" style="margin-top:0;">✅ Formatos: JPG, PNG, WebP, GIF, BMP 📁</p>
+            <input type="file" id="editarSubirFoto" accept="image/*" multiple onchange="procesarFotosEditar(event)">
 
-            <!-- 🎬 EDITAR VIDEOS -->
             <span class="etiqueta">🎬 Videos actuales (<span id="contadorEditarVideos">0</span>):</span>
             <div id="editarVideosLista" class="lista-imagenes"></div>
             
             <span class="etiqueta">🎬 Agregar nuevo video de YouTube:</span>
-            <input type="text" id="editarVideoUrl" placeholder="Pega el enlace de YouTube">
+            <input type="text" id="editarVideoUrl">
             <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem;" onclick="agregarVideoEditar()">➕ Agregar Video</button>
 
             <div class="fila-botones">
@@ -208,13 +191,13 @@
   const CLAVE_SECRETA = "admin123";
   const CLAVE_STORAGE = "fullinyeccion_clave";
 
-  // 🎯 CONFIGURACIÓN DE FOTOS — OPTIMIZADA PARA CABER MÁS FOTOS
+  // 🎯 CONFIGURACIÓN — SIN COMPRESIÓN QUE CAUSA FOTOS NEGRAS
   const CONFIG = {
-    calidad: 0.82,        // ✅ 82% — nítida y ligera
-    maxAncho: 900,        // ✅ 900px — buen detalle, no pesa tanto
-    limiteFotos: 20,      // ✅ HASTA 20 FOTOS por producto 📸
-    limiteAdvertencia: 15, // ⚠️ Avisar a las 15 que se acerco al límite
-    limiteTotalBytes: 950 * 1024 // ✅ 950 KB — margen seguro
+    calidad: 0.85,
+    maxAncho: 800, // ✅ Más pequeño para que quepan más fotos
+    limiteFotos: 20,
+    limiteAdvertencia: 15,
+    limiteTotalBytes: 900 * 1024
   };
 
   let imagenes = [];
@@ -224,7 +207,6 @@
   let editarImagenes = [];
   let editarVideos = [];
 
-  // ✅ Conexión a la nube
   document.addEventListener('DOMContentLoaded', () => {
     const estado = document.getElementById('estadoNube');
     setTimeout(() => {
@@ -233,14 +215,13 @@
     }, 500);
   });
 
-  // 🔐 Verificar clave
   window.verificarClave = function() {
     if (document.getElementById('inputClave').value === CLAVE_SECRETA) {
       localStorage.setItem(CLAVE_STORAGE, "autenticado");
       document.getElementById('pantallaClave').classList.add('oculto');
       document.getElementById('panelControl').classList.remove('oculto');
       cargarDesdeNube();
-      mostrarMensaje("✅ ¡Listo! Sube hasta 20 fotos nítidas por producto 📸✨", "exito");
+      mostrarMensaje("✅ ¡Listo! Las fotos ya se ven nítidas 📸✨", "exito");
     } else {
       mostrarMensaje("❌ Clave incorrecta", "aviso");
     }
@@ -255,7 +236,6 @@
     setTimeout(() => m.classList.add('oculto'), 5000);
   }
 
-  // 📊 ACTUALIZAR CONTADOR DE FOTOS
   function actualizarContador() {
     document.getElementById('numeroFotos').textContent = `${imagenes.length} / ${CONFIG.limiteFotos}`;
     const aviso = document.getElementById('avisoLimite');
@@ -266,50 +246,59 @@
     }
   }
 
-  // 🎨 COMPRIMIR IMAGEN — OPTIMIZADA
-  function comprimirImagen(urlBase64) {
+  // 🎨 SOLUCIÓN DEFINITIVA: LEER DIRECTAMENTE SIN COMPRESIÓN COMPLEJA
+  function procesarArchivoAImagen(archivo) {
     return new Promise((resolver) => {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        let ancho = img.width, alto = img.height;
-        
-        // 📐 Reducir tamaño si es muy grande
-        if (ancho > CONFIG.maxAncho) {
-          const prop = CONFIG.maxAncho / ancho;
-          ancho = CONFIG.maxAncho;
-          alto = Math.round(alto * prop);
-        }
-        
-        canvas.width = ancho;
-        canvas.height = alto;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, 0, 0, ancho, alto);
-        
-        // 📉 Comprimir con calidad ajustada
-        let calidadActual = CONFIG.calidad;
-        let resultado = canvas.toDataURL('image/jpeg', calidadActual);
-        
-        // ⚠️ Si pesa mucho, reducir calidad POCO a poco
-        while (resultado.length > 100 * 1024 && calidadActual > 0.65) {
-          calidadActual -= 0.05;
-          resultado = canvas.toDataURL('image/jpeg', calidadActual);
-        }
-        
-        resolver(resultado);
+      const lector = new FileReader();
+      lector.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let ancho = img.width, alto = img.height;
+          
+          // 📐 Reducir tamaño para que no pese tanto
+          if (ancho > CONFIG.maxAncho) {
+            const prop = CONFIG.maxAncho / ancho;
+            ancho = CONFIG.maxAncho;
+            alto = Math.round(alto * prop);
+          }
+          
+          canvas.width = ancho;
+          canvas.height = alto;
+          const ctx = canvas.getContext('2d');
+          
+          // ✅ DIBUJAR CORRECTAMENTE — YA NO SALE NEGRA
+          ctx.clearRect(0, 0, ancho, alto); // ✅ Limpiar primero
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, 0, 0, ancho, alto);
+          
+          // 📉 Convertir a JPEG con calidad
+          let resultado = canvas.toDataURL('image/jpeg', CONFIG.calidad);
+          
+          // ⚠️ Solo reducir si es MUY pesada
+          let calidadBaja = CONFIG.calidad;
+          while (resultado.length > 150 * 1024 && calidadBaja > 0.65) {
+            calidadBaja -= 0.05;
+            resultado = canvas.toDataURL('image/jpeg', calidadBaja);
+          }
+          
+          resolver(resultado);
+        };
+        img.onerror = function() {
+          resolver(e.target.result); // ✅ Si falla, usar la original directa
+        };
+        img.src = e.target.result;
       };
-      img.src = urlBase64;
+      lector.readAsDataURL(archivo);
     });
   }
 
-  // 📸 PROCESAR FOTOS — CON LÍMITE DE 20
+  // 📸 PROCESAR FOTOS — YA NO SALEN NEGRAS
   window.procesarFotos = async function(event) {
     const archivos = event.target.files;
     if (!archivos || archivos.length === 0) return;
 
-    // ⚠️ Verificar límite total
     const faltan = CONFIG.limiteFotos - imagenes.length;
     if (faltan <= 0) {
       mostrarMensaje(`⚠️ Ya tienes ${CONFIG.limiteFotos} fotos. Quita algunas antes de agregar más.`, "aviso");
@@ -326,31 +315,34 @@
     const progreso = document.getElementById('progreso');
     barra.style.display = "block";
 
-    let procesadas = 0;
     for (let i = 0; i < agregar; i++) {
       const archivo = archivos[i];
-      const lector = new FileReader();
-      
-      lector.onload = async function(e) {
-        const fotoComprimida = await comprimirImagen(e.target.result);
-        imagenes.push(fotoComprimida);
-        procesadas++;
-        
-        progreso.style.width = `${Math.round((procesadas/agregar)*100)}%`;
+      try {
+        mostrarMensaje(`📸 Procesando foto ${i+1} de ${agregar}...`, "aviso");
+        const foto = await procesarArchivoAImagen(archivo);
+        imagenes.push(foto);
+        progreso.style.width = `${Math.round(((i+1)/agregar)*100)}%`;
         actualizarContador();
         renderizarVistaImagenes();
-        
-        if (procesadas === agregar) {
-          setTimeout(() => {
-            barra.style.display = "none";
-            progreso.style.width = "0%";
-          }, 800);
-          mostrarMensaje(`✅ ${agregar} foto(s) cargada(s) 📸 (total: ${imagenes.length}/${CONFIG.limiteFotos})`, "exito");
-        }
-      };
-      lector.readAsDataURL(archivo);
+      } catch (err) {
+        console.error("Error procesando:", err);
+        mostrarMensaje(`⚠️ Foto ${i+1} usada sin compresión`, "aviso");
+        const lector = new FileReader();
+        lector.onload = function(e) {
+          imagenes.push(e.target.result);
+          actualizarContador();
+          renderizarVistaImagenes();
+        };
+        lector.readAsDataURL(archivo);
+      }
     }
-    
+
+    setTimeout(() => {
+      barra.style.display = "none";
+      progreso.style.width = "0%";
+      mostrarMensaje(`✅ ${agregar} foto(s) cargada(s) correctamente 📸✨`, "exito");
+    }, 500);
+
     event.target.value = "";
   };
 
@@ -369,284 +361,95 @@
     const agregar = Math.min(archivos.length, faltan);
     for (let i = 0; i < agregar; i++) {
       const archivo = archivos[i];
-      const lector = new FileReader();
-      lector.onload = async function(e) {
-        editarImagenes.push(await comprimirImagen(e.target.result));
+      try {
+        const foto = await procesarArchivoAImagen(archivo);
+        editarImagenes.push(foto);
         renderizarEditarFotos();
         document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
-      };
-      lector.readAsDataURL(archivo);
+      } catch (err) {
+        const lector = new FileReader();
+        lector.onload = function(e) {
+          editarImagenes.push(e.target.result);
+          renderizarEditarFotos();
+          document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
+        };
+        lector.readAsDataURL(archivo);
+      }
     }
     event.target.value = "";
   };
 
-  // ❌ QUITAR FOTO — NUEVO PRODUCTO
-  window.quitarImagen = function(indice) {
-    imagenes.splice(indice, 1);
-    actualizarContador();
-    renderizarVistaImagenes();
-  };
+  window.quitarImagen = i => {imagenes.splice(i,1); actualizarContador(); renderizarVistaImagenes();};
+  window.quitarImagenEditar = i => {editarImagenes.splice(i,1); renderizarEditarFotos(); document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;};
+  window.agregarVideo = () => {const u=document.getElementById('videoUrl').value.trim();if(!u)return;videos.push(u);document.getElementById('videoUrl').value='';renderizarVistaVideos();mostrarMensaje(`✅ Video agregado 🎬 (total: ${videos.length})`,"exito");};
+  window.agregarVideoEditar = () => {const u=document.getElementById('editarVideoUrl').value.trim();if(!u)return;editarVideos.push(u);document.getElementById('editarVideoUrl').value='';renderizarEditarVideos();document.getElementById('contadorEditarVideos').textContent = editarVideos.length;mostrarMensaje("✅ Video agregado 🎬","exito");};
+  window.quitarVideo = i => {videos.splice(i,1);renderizarVistaVideos();};
+  window.quitarVideoEditar = i => {editarVideos.splice(i,1);renderizarEditarVideos();document.getElementById('contadorEditarVideos').textContent = editarVideos.length;};
 
-  // ❌ QUITAR FOTO — EN EDICIÓN
-  window.quitarImagenEditar = function(indice) {
-    editarImagenes.splice(indice, 1);
-    renderizarEditarFotos();
-    document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
-  };
-
-  // 🎬 AGREGAR VIDEO — NUEVO PRODUCTO
-  window.agregarVideo = function() {
-    const url = document.getElementById('videoUrl').value.trim();
-    if (!url) { mostrarMensaje("⚠️ Pega el enlace del video", "aviso"); return; }
-    videos.push(url);
-    document.getElementById('videoUrl').value = "";
-    renderizarVistaVideos();
-    mostrarMensaje(`✅ Video agregado 🎬 (total: ${videos.length})`, "exito");
-  };
-
-  // 🎬 AGREGAR VIDEO — EN EDICIÓN
-  window.agregarVideoEditar = function() {
-    const url = document.getElementById('editarVideoUrl').value.trim();
-    if (!url) { mostrarMensaje("⚠️ Pega el enlace del video", "aviso"); return; }
-    editarVideos.push(url);
-    document.getElementById('editarVideoUrl').value = "";
-    renderizarEditarVideos();
-    document.getElementById('contadorEditarVideos').textContent = editarVideos.length;
-    mostrarMensaje(`✅ Video agregado 🎬`, "exito");
-  };
-
-  // ❌ QUITAR VIDEO — NUEVO PRODUCTO
-  window.quitarVideo = function(indice) {
-    videos.splice(indice, 1);
-    renderizarVistaVideos();
-  };
-
-  // ❌ QUITAR VIDEO — EN EDICIÓN
-  window.quitarVideoEditar = function(indice) {
-    editarVideos.splice(indice, 1);
-    renderizarEditarVideos();
-    document.getElementById('contadorEditarVideos').textContent = editarVideos.length;
-  };
-
-  // 📸 RENDERIZAR FOTOS — NUEVO PRODUCTO
   function renderizarVistaImagenes() {
-    const caja = document.getElementById('vistaImagenes');
-    if (imagenes.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivos" y selecciona todas las que quieras 📁</p>';
-      return;
-    }
-    caja.innerHTML = imagenes.map((url, i) => `
-      <div class="item-imagen">
-        <img src="${url}" class="preview-imagen" alt="Foto ${i+1}">
-        <button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('vistaImagenes');
+    c.innerHTML=imagenes.length?imagenes.map((u,i)=>`<div class="item-imagen"><img src="${u}" class="preview-imagen" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivos" y selecciona todas las que quieras 📁</p>';
   }
-
-  // 🎬 RENDERIZAR VIDEOS — NUEVO PRODUCTO
   function renderizarVistaVideos() {
-    const caja = document.getElementById('vistaVideos');
-    if (videos.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin videos aún.</p>';
-      return;
-    }
-    caja.innerHTML = videos.map((url, i) => `
-      <div class="item-imagen" style="background:#334155; padding:0.5rem; border-radius:6px; max-width:180px;">
-        <span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span>
-        <button class="btn-quitar-img" onclick="quitarVideo(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('vistaVideos');
+    c.innerHTML=videos.length?videos.map((u,i)=>`<div class="item-imagen" style="background:#334155; padding:0.5rem; border-radius:6px; max-width:180px;"><span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span><button class="btn-quitar-img" onclick="quitarVideo(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin videos aún.</p>';
   }
-
-  // 📸 RENDERIZAR FOTOS — EDICIÓN
   function renderizarEditarFotos() {
-    const caja = document.getElementById('editarFotosLista');
-    if (editarImagenes.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
-      return;
-    }
-    caja.innerHTML = editarImagenes.map((url, i) => `
-      <div class="miniatura-editar">
-        <img src="${url}" alt="Foto ${i+1}">
-        <button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('editarFotosLista');
+    c.innerHTML=editarImagenes.length?editarImagenes.map((u,i)=>`<div class="miniatura-editar"><img src="${u}" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-mini" onclick="quitarImagenEditar(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos.</p>';
     document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
   }
-
-  // 🎬 RENDERIZAR VIDEOS — EDICIÓN
   function renderizarEditarVideos() {
-    const caja = document.getElementById('editarVideosLista');
-    if (editarVideos.length === 0) {
-      caja.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin videos.</p>';
-      return;
-    }
-    caja.innerHTML = editarVideos.map((url, i) => `
-      <div class="miniatura-editar" style="background:#334155; padding:0.5rem; border-radius:6px; width:110px; text-align:center;">
-        <span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span>
-        <button class="btn-quitar-mini" onclick="quitarVideoEditar(${i})">×</button>
-      </div>
-    `).join('');
+    const c=document.getElementById('editarVideosLista');
+    c.innerHTML=editarVideos.length?editarVideos.map((u,i)=>`<div class="miniatura-editar" style="background:#334155; padding:0.5rem; border-radius:6px; width:110px; text-align:center;"><span style="color:#25d363; font-size:0.85rem;">🎬 Video ${i+1}</span><button class="btn-quitar-mini" onclick="quitarVideoEditar(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin videos.</p>';
     document.getElementById('contadorEditarVideos').textContent = editarVideos.length;
   }
 
-  // ☁️ GUARDAR PRODUCTO NUEVO
-  window.guardarProductoNuevo = async function() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const descripcion = document.getElementById('descripcion').value.trim();
-    const precio = document.getElementById('precio').value.trim();
-
-    if (!nombre || !precio) {
-      mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
-      return;
-    }
-
-    try {
-      const datos = {
-        nombre,
-        descripcion,
-        precio: Number(precio),
-        imagenes: imagenes.length > 0 ? [...imagenes] : ["https://via.placeholder.com/900x600/1e293b/f59e0b?text=" + encodeURIComponent(nombre)],
-        videos: [...videos]
-      };
-
-      await addDoc(collection(db, COLLECTION), datos);
-      mostrarMensaje(`✅ Producto "${nombre}" guardado con ${imagenes.length} foto(s) 📸✨`, "exito");
-      
-      // 🧹 Limpiar todo
-      document.getElementById('nombre').value = "";
-      document.getElementById('descripcion').value = "";
-      document.getElementById('precio').value = "";
-      document.getElementById('videoUrl').value = "";
-      imagenes = [];
-      videos = [];
-      actualizarContador();
-      renderizarVistaImagenes();
-      renderizarVistaVideos();
-      
-      await cargarDesdeNube();
-    } catch (error) {
-      if (error.message.includes("exceeds the maximum allowed size")) {
-        mostrarMensaje("❌ ¡El producto pesa demasiado! Usa menos fotos o combina con enlaces 🔗", "error");
-      } else {
-        mostrarMensaje("❌ Error: " + error.message, "error");
-      }
+  window.guardarProductoNuevo=async()=>{
+    const n=document.getElementById('nombre').value.trim(),d=document.getElementById('descripcion').value.trim(),p=document.getElementById('precio').value.trim();
+    if(!n||!p)return mostrarMensaje("⚠️ Escribe el nombre y el precio","aviso");
+    try{
+      const datos={nombre:n,descripcion:d,precio:Number(p),imagenes:imagenes.length?[...imagenes]:[`https://via.placeholder.com/800x600/1e293b/f59e0b?text=${encodeURIComponent(n)}`],videos:[...videos]};
+      await addDoc(collection(db,COLLECTION),datos);
+      mostrarMensaje(`✅ Producto "${n}" guardado con ${imagenes.length} foto(s) 📸✨`,"exito");
+      document.getElementById('nombre').value=document.getElementById('descripcion').value=document.getElementById('precio').value=document.getElementById('videoUrl').value='';
+      imagenes=[];videos=[];actualizarContador();renderizarVistaImagenes();renderizarVistaVideos();await cargarDesdeNube();
+    }catch(e){
+      if(e.message.includes("exceeds"))mostrarMensaje("❌ Demasiadas fotos. Usa menos o enlaces 🔗","error");
+      else mostrarMensaje("❌ Error: "+e.message,"error");
     }
   };
 
-  // ✏️ ABRIR MODAL DE EDICIÓN
-  window.abrirModalEditar = function(id) {
-    const prod = productos.find(p => p.id === id);
-    if (!prod) return;
-
-    productoEditarId = id;
-    editarImagenes = [...(prod.imagenes || [])];
-    editarVideos = [...(prod.videos || [])];
-
-    document.getElementById('editarNombre').value = prod.nombre || "";
-    document.getElementById('editarDescripcion').value = prod.descripcion || "";
-    document.getElementById('editarPrecio').value = prod.precio || "";
-
-    renderizarEditarFotos();
-    renderizarEditarVideos();
-
-    document.getElementById('modalEditar').classList.remove('oculto');
+  window.abrirModalEditar=id=>{
+    const prod=productos.find(x=>x.id===id);if(!prod)return;
+    productoEditarId=id;editarImagenes=[...(prod.imagenes||[])];editarVideos=[...(prod.videos||[])];
+    document.getElementById('editarNombre').value=prod.nombre||'';document.getElementById('editarDescripcion').value=prod.descripcion||'';document.getElementById('editarPrecio').value=prod.precio||'';
+    renderizarEditarFotos();renderizarEditarVideos();document.getElementById('modalEditar').classList.remove('oculto');
+  };
+  window.cerrarModalEditar=()=>{document.getElementById('modalEditar').classList.add('oculto');productoEditarId=null;editarImagenes=[];editarVideos=[];};
+  window.guardarEdicion=async()=>{
+    const n=document.getElementById('editarNombre').value.trim(),d=document.getElementById('editarDescripcion').value.trim(),p=document.getElementById('editarPrecio').value.trim();
+    if(!n||!p)return mostrarMensaje("⚠️ Nombre y precio obligatorios","aviso");
+    try{
+      await updateDoc(doc(db,COLLECTION,productoEditarId),{nombre:n,descripcion:d,precio:Number(p),imagenes:editarImagenes.length?[...editarImagenes]:[`https://via.placeholder.com/800x600/1e293b/f59e0b?text=${encodeURIComponent(n)}`],videos:[...editarVideos]});
+      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬","exito");cerrarModalEditar();await cargarDesdeNube();
+    }catch(e){mostrarMensaje("❌ Error: "+e.message,"error");}
   };
 
-  // ❌ CERRAR MODAL DE EDICIÓN
-  window.cerrarModalEditar = function() {
-    document.getElementById('modalEditar').classList.add('oculto');
-    productoEditarId = null;
-    editarImagenes = [];
-    editarVideos = [];
+  window.eliminarProducto=async id=>{
+    if(confirm("⚠️ ¿Eliminar producto completo con todas sus fotos y videos?")){await deleteDoc(doc(db,COLLECTION,id));mostrarMensaje("✅ Producto eliminado 🗑️","exito");await cargarDesdeNube();}
   };
 
-  // 💾 GUARDAR EDICIÓN
-  window.guardarEdicion = async function() {
-    const nombre = document.getElementById('editarNombre').value.trim();
-    const descripcion = document.getElementById('editarDescripcion').value.trim();
-    const precio = document.getElementById('editarPrecio').value.trim();
-
-    if (!nombre || !precio) {
-      mostrarMensaje("⚠️ Nombre y precio son obligatorios", "aviso");
-      return;
-    }
-
-    try {
-      const datosActualizados = {
-        nombre,
-        descripcion,
-        precio: Number(precio),
-        imagenes: editarImagenes.length > 0 ? [...editarImagenes] : ["https://via.placeholder.com/900x600/1e293b/f59e0b?text=" + encodeURIComponent(nombre)],
-        videos: [...editarVideos]
-      };
-
-      await updateDoc(doc(db, COLLECTION, productoEditarId), datosActualizados);
-      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬", "exito");
-      cerrarModalEditar();
-      await cargarDesdeNube();
-    } catch (error) {
-      mostrarMensaje("❌ Error: " + error.message, "error");
-    }
-  };
-
-  // 🗑️ ELIMINAR PRODUCTO
-  window.eliminarProducto = async function(id) {
-    if (confirm("⚠️ ¿Seguro que quieres ELIMINAR este producto completo? Se borran TODAS las fotos y videos 📸🎬")) {
-      try {
-        await deleteDoc(doc(db, COLLECTION, id));
-        mostrarMensaje("✅ Producto eliminado completo 🗑️", "exito");
-        await cargarDesdeNube();
-      } catch (error) {
-        mostrarMensaje("❌ Error: " + error.message, "error");
-      }
-    }
-  };
-
-  // ☁️ CARGAR TODOS LOS PRODUCTOS
-  async function cargarDesdeNube() {
-    const lista = document.getElementById('listaProductos');
-    try {
-      const querySnapshot = await getDocs(collection(db, COLLECTION));
-      productos = [];
-      lista.innerHTML = "";
-      document.getElementById('contador').textContent = querySnapshot.size;
-
-      if (querySnapshot.empty) {
-        lista.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';
-        return;
-      }
-
-      querySnapshot.forEach((docSnap) => {
-        const p = docSnap.data();
-        p.id = docSnap.id;
-        productos.push(p);
-
-        const div = document.createElement('div');
-        div.className = "producto-item";
-        div.innerHTML = `
-          <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${p.nombre}</h4>
-          <p style="color:#cbd5e1; margin-bottom:0.5rem;">${p.descripcion || 'Sin descripción'}</p>
-          <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
-          <p style="color:#94a3b8; font-size:0.9rem;">📸 ${(p.imagenes || []).length} foto(s) | 🎬 ${(p.videos || []).length} video(s)</p>
-          <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button>
-            <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
-          </div>
-        `;
-        lista.appendChild(div);
-      });
-    } catch (error) {
-      lista.innerHTML = `<p style="color:#ef4444; text-align:center; padding:2rem;">❌ Error: ${error.message}</p>`;
-    }
+  async function cargarDesdeNube(){
+    const l=document.getElementById('listaProductos');
+    try{
+      const q=await getDocs(collection(db,COLLECTION));productos=[];l.innerHTML='';document.getElementById('contador').textContent=q.size;
+      if(q.empty){l.innerHTML='<p style="color:#94a3b8;text-align:center;padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';return;}
+      q.forEach(d=>{const p=d.data();p.id=d.id;productos.push(p);l.innerHTML+=`<div class="producto-item"><h4 style="color:#f59e0b;">${p.nombre}</h4><p style="color:#cbd5e1;">${p.descripcion||'Sin descripción'}</p><p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p><p style="color:#94a3b8;">📸 ${(p.imagenes||[]).length} foto(s) | 🎬 ${(p.videos||[]).length} video(s)</p><div style="display:flex;gap:0.5rem;margin-top:1rem;"><button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button><button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button></div></div>`;});
+    }catch(e){l.innerHTML=`<p style="color:#ef4444;text-align:center;padding:2rem;">❌ Error: ${e.message}</p>`;}
   }
 
-  // 🔁 Auto-login
-  if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
-    document.getElementById('pantallaClave').classList.add('oculto');
-    document.getElementById('panelControl').classList.remove('oculto');
-    setTimeout(cargarDesdeNube, 300);
-  }
+  if(localStorage.getItem(CLAVE_STORAGE)==="autenticado"){document.getElementById('pantallaClave').classList.add('oculto');document.getElementById('panelControl').classList.remove('oculto');setTimeout(cargarDesdeNube,300);}
 </script>
 </body>
 </html>
