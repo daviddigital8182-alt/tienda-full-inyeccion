@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Inyección - Escáneres y Cables para Motos y Carros</title>
+    <title>🏍️ Full Inyección - Escáneres y Herramientas para Motos</title>
     <style>
         * {margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
         body {background:#0f172a; color:#f8fafc; padding-bottom:80px;}
@@ -12,52 +12,78 @@
         .subtitulo {color:#94a3b8; margin-top:0.5rem; font-size:0.95rem;}
         .contenedor {max-width:1200px; margin:0 auto; padding:1.5rem;}
         h2 {text-align:center; margin-bottom:2rem; font-size:1.5rem; color:#f59e0b;}
-        .productos {display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;}
-        .producto {background:#1e293b; border-radius:12px; padding:1.2rem; border:2px solid transparent;}
-        .producto h3 {color:#f59e0b; margin-bottom:0.8rem; font-size:1.1rem;}
-        .precio {font-size:1.3rem; font-weight:bold; color:#22c55e; margin:1rem 0;}
-        button {width:100%; padding:0.9rem; background:#25d363; color:white; border:none; border-radius:8px; font-weight:bold; font-size:1rem; cursor:pointer;}
-        button:hover {background:#12b74d;}
-        footer {text-align:center; padding:2rem; color:#64748b; margin-top:2rem; border-top:1px solid #334155; font-size:0.9rem;}
-        .admin-link {text-align:center; margin-top:2rem;}
-        .admin-link a {color:#64748b; font-size:0.85rem; text-decoration:none;}
-        .cargando {text-align:center; color:#94a3b8; padding:2rem;}
+
+        /* ========== PRODUCTO CON GALERÍA PROFESIONAL ========== */
+        .producto {background:#1e293b; border-radius:16px; padding:1.5rem; margin-bottom:2rem; overflow:hidden;}
+        .producto-contenido {display:grid; grid-template-columns:1fr 1fr; gap:2rem;}
+        
+        /* 📸 GALERÍA DE IMÁGENES - ESTILO MERCADOLIBRE */
+        .galeria {position:relative;}
+        .imagen-principal {width:100%; height:400px; object-fit:cover; border-radius:12px; cursor:zoom-in; transition:transform 0.3s ease; background:#334155;}
+        .imagen-principal:hover {transform:scale(1.02);}
+        .imagen-principal.zoom {transform:scale(1.5); cursor:zoom-out;}
+        
+        /* 🎬 VIDEO */
+        .video-principal {width:100%; height:400px; border-radius:12px; background:#000;}
+        
+        /* 📱 MINIATURAS */
+        .miniaturas {display:flex; gap:0.8rem; margin-top:1rem; overflow-x:auto; padding-bottom:0.5rem; scrollbar-width:thin;}
+        .miniatura {width:80px; height:60px; object-fit:cover; border-radius:8px; cursor:pointer; border:3px solid transparent; transition:all 0.2s; flex-shrink:0;}
+        .miniatura:hover {border-color:#f59e0b; transform:scale(1.05);}
+        .miniatura.activa {border-color:#f59e0b; box-shadow:0 0 0 2px #f59e0b;}
+        
+        /* 🎬 MINIATURA DE VIDEO */
+        .miniatura-video {position:relative;}
+        .miniatura-video::after {content:"▶"; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.7); color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:12px;}
+
+        /* 📝 INFO DEL PRODUCTO */
+        .info-producto h3 {color:#f59e0b; font-size:1.5rem; margin-bottom:1rem;}
+        .descripcion {color:#cbd5e1; font-size:1rem; line-height:1.6; margin-bottom:1.5rem;}
+        .precio {font-size:2rem; font-weight:bold; color:#22c55e; margin:1.5rem 0;}
+        .precio span {font-size:1rem; color:#94a3b8;}
+        button {width:100%; padding:1rem; background:#25d363; color:white; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; cursor:pointer; transition:all 0.2s;}
+        button:hover {background:#12b74d; transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,211,99,0.3);}
+
+        /* 📱 RESPONSIVE */
+        @media (max-width:768px) {
+            .producto-contenido {grid-template-columns:1fr;}
+            .imagen-principal, .video-principal {height:300px;}
+        }
+
+        .cargando {text-align:center; color:#94a3b8; padding:3rem; font-size:1.1rem;}
+        .admin-link {text-align:center; margin-top:3rem;}
+        .admin-link a {color:#64748b; font-size:0.9rem; text-decoration:none;}
+        footer {text-align:center; padding:2rem; color:#64748b; margin-top:3rem; border-top:1px solid #334155; font-size:0.9rem;}
     </style>
 </head>
 <body>
     <header>
         <h1>🏍️ FULL INYECCIÓN</h1>
-        <p class="subtitulo">Cables, Escáneres y Herramientas de Diagnóstico</p>
+        <p class="subtitulo">Cables, Escáneres y Herramientas de Diagnóstico para Motos y Carros</p>
     </header>
 
     <div class="contenedor">
         <h2>📦 Nuestros Productos</h2>
-        
-        <div class="productos" id="lista-productos">
-            <div class="cargando">Cargando productos...</div>
+        <div id="lista-productos">
+            <div class="cargando">⏳ Cargando productos desde la nube...</div>
         </div>
-
         <div class="admin-link">
-            <a href="panel.html">🔐 Panel de Administración</a>
+            <a href="panel.html">🔐 Panel de Administración — Agregar productos</a>
         </div>
     </div>
 
     <footer>
-        <p>📍 Medellín, Colombia 🇨🇴</p>
-        <p>📱 WhatsApp: +57 316 718 8394</p>
-        <p>🚚 Envíos a todo el país</p>
-        <p>🏍️ Full Inyección © 2026</p>
+        <p>📍 Medellín, Colombia 🇨🇴 | 📱 WhatsApp: +57 316 718 8394</p>
+        <p>🚚 Envíos a todo el país | 🏍️ Full Inyección © 2026</p>
     </footer>
 
 <!-- ==============================================
-     ✅ CONFIGURACIÓN DE FIREBASE - CÓDIGO REAL
+     ✅ FIREBASE + GALERÍA PROFESIONAL
      ============================================== -->
 <script type="module">
-  // Importar las funciones necesarias del SDK de Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // Tu configuración real de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
     authDomain: "full-inyeccion.firebaseapp.com",
@@ -67,76 +93,116 @@
     appId: "1:279801018722:web:ba3c95e7598ebebdadd43b"
   };
 
-  // Inicializar Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Cargar productos desde la base de datos
+  // 📸 Renderizar galería con imágenes y videos
+  function renderizarGaleria(producto) {
+    const imagenes = producto.imagenes || ["https://via.placeholder.com/600x400/1e293b/f59e0b?text=Producto"];
+    const videos = producto.videos || [];
+    const todos = [...imagenes, ...videos];
+    const tieneVideo = videos.length > 0;
+
+    return `
+      <div class="galeria">
+        <!-- Imagen/Video Principal -->
+        ${todos.length > 0 ? 
+          (todos[0].includes('video') || todos[0].includes('youtube') || todos[0].includes('youtu.be')) ?
+            `<iframe class="video-principal" id="media-principal" src="${todos[0]}" frameborder="0" allowfullscreen></iframe>` :
+            `<img src="${todos[0]}" class="imagen-principal" id="media-principal" alt="${producto.nombre}" onclick="this.classList.toggle('zoom')">`
+          : `<div style="width:100%;height:400px;background:#334155;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#94a3b8">📷 Sin imagen</div>`
+        }
+        
+        <!-- Miniaturas -->
+        ${todos.length > 1 ? `
+          <div class="miniaturas">
+            ${todos.map((url, i) => {
+              const esVideo = url.includes('video') || url.includes('youtube') || url.includes('youtu.be');
+              return `
+                <img src="${esVideo ? 'https://via.placeholder.com/80x60/1e293b/25d363?text=▶' : url}" 
+                     class="miniatura ${i === 0 ? 'activa' : ''} ${esVideo ? 'miniatura-video' : ''}"
+                     onclick="cambiarMedia('${url}', ${i}, this)"
+                     alt="Vista ${i+1}">
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // 📦 Cargar productos desde Firebase
   async function cargarProductos() {
     const contenedor = document.getElementById('lista-productos');
     try {
       const querySnapshot = await getDocs(collection(db, "productos"));
       contenedor.innerHTML = "";
-      
+
       if (querySnapshot.empty) {
-        contenedor.innerHTML = '<p style="text-align:center; color:#94a3b8; grid-column:1/-1;">No hay productos aún. Agrega productos desde tu Panel de Control.</p>';
+        contenedor.innerHTML = `
+          <div style="text-align:center; padding:4rem 2rem; color:#94a3b8;">
+            <h3 style="color:#f59e0b; margin-bottom:1rem;">🏍️ Próximamente...</h3>
+            <p>Aún no hay productos publicados. Vuelve pronto para ver nuestro catálogo completo de escáneres y herramientas.</p>
+          </div>
+        `;
         return;
       }
 
-      querySnapshot.forEach((doc) => {
-        const p = doc.data();
-        const productoHTML = `
-            <div class="producto">
-                <h3>${p.nombre || "Producto sin nombre"}</h3>
-                <p>${p.descripcion || ""}</p>
-                <div class="precio">$ ${p.precio ? Number(p.precio).toLocaleString('es-CO') : "0"} COP</div>
-                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar: ${encodeURIComponent(p.nombre || '')}" target="_blank">
-                    <button>💬 Pedir por WhatsApp</button>
+      querySnapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+        
+        contenedor.innerHTML += `
+          <div class="producto">
+            <div class="producto-contenido">
+              ${renderizarGaleria(p)}
+              <div class="info-producto">
+                <h3>${p.nombre || 'Producto sin nombre'}</h3>
+                <p class="descripcion">${p.descripcion || 'Sin descripción disponible'}</p>
+                <div class="precio">$ ${p.precio ? Number(p.precio).toLocaleString('es-CO') : '0'} <span>COP</span></div>
+                <a href="https://wa.me/573167188394?text=Hola! Quiero comprar: ${encodeURIComponent(p.nombre || '')}" target="_blank" style="text-decoration:none;">
+                  <button>💬 Pedir por WhatsApp</button>
                 </a>
+              </div>
             </div>
+          </div>
         `;
-        contenedor.innerHTML += productoHTML;
       });
     } catch (error) {
-      contenedor.innerHTML = `
-        <div class="producto">
-            <h3>🔌 Escáner ELM327 v1.5</h3>
-            <p>Diagnóstico OBD2 para carros y motos. Lectura de códigos y sensores en tiempo real.</p>
-            <div class="precio">$ 45.000 COP</div>
-            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v1.5" target="_blank">
-                <button>💬 Pedir por WhatsApp</button>
-            </a>
-        </div>
-        <div class="producto">
-            <h3>🔌 Escáner ELM327 v2.1 Bluetooth</h3>
-            <p>Conexión inalámbrica, compatible con Android y iPhone. Más rápido y estable.</p>
-            <div class="precio">$ 65.000 COP</div>
-            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Escáner ELM327 v2.1" target="_blank">
-                <button>💬 Pedir por WhatsApp</button>
-            </a>
-        </div>
-        <div class="producto">
-            <h3>🔗 Cable K-Line para Motos</h3>
-            <p>Compatible con Bajaj Pulsar, Honda, Yamaha y más. Diagnóstico ISO 9141-2.</p>
-            <div class="precio">$ 35.000 COP</div>
-            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable K-Line para Motos" target="_blank">
-                <button>💬 Pedir por WhatsApp</button>
-            </a>
-        </div>
-        <div class="producto">
-            <h3>🔗 Cable OBD2 Universal 16 pines</h3>
-            <p>Cable de conexión blindado de alta calidad para escáneres.</p>
-            <div class="precio">$ 28.000 COP</div>
-            <a href="https://wa.me/573167188394?text=Hola! Quiero comprar el Cable OBD2 Universal" target="_blank">
-                <button>💬 Pedir por WhatsApp</button>
-            </a>
-        </div>
-      `;
+      contenedor.innerHTML = `<div class="cargando">❌ Error cargando productos: ${error.message}</div>`;
     }
   }
 
-  // Cargar productos cuando la página esté lista
-  document.addEventListener('DOMContentLoaded', cargarProductos);
+  // 🔄 Cambiar imagen/video principal al hacer clic en miniatura
+  window.cambiarMedia = function(url, indice, miniatura) {
+    const principal = document.getElementById('media-principal');
+    const todasMiniaturas = miniatura.parentElement.querySelectorAll('.miniatura');
+    
+    todasMiniaturas.forEach(m => m.classList.remove('activa'));
+    miniatura.classList.add('activa');
+
+    const esVideo = url.includes('youtube') || url.includes('youtu.be') || url.includes('video');
+    
+    if (esVideo) {
+      const nuevoIframe = document.createElement('iframe');
+      nuevoIframe.className = 'video-principal';
+      nuevoIframe.id = 'media-principal';
+      nuevoIframe.src = url;
+      nuevoIframe.frameBorder = '0';
+      nuevoIframe.allowFullscreen = true;
+      principal.replaceWith(nuevoIframe);
+    } else {
+      const nuevaImg = document.createElement('img');
+      nuevaImg.className = 'imagen-principal';
+      nuevaImg.id = 'media-principal';
+      nuevaImg.src = url;
+      nuevaImg.alt = 'Vista principal';
+      nuevaImg.onclick = function() { this.classList.toggle('zoom'); };
+      principal.replaceWith(nuevaImg);
+    }
+  };
+
+  cargarProductos();
 </script>
 </body>
 </html>
