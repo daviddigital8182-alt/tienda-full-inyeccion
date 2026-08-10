@@ -1,9 +1,35 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏍️ Full Inyección - Escáneres y Herramientas para Motos</title>
+
+    <!-- ==============================================
+         🪄 ETIQUETAS MÁGICAS — PARA QUE APAREZCA LA FOTO AL COMPARTIR 📸
+         ============================================== -->
+    <!-- 📌 Título que ven las redes -->
+    <meta property="og:title" content="🏍️ Full Inyección - Herramientas de Diagnóstico para Motos y Carros">
+    <!-- 📌 Descripción que ven las redes -->
+    <meta property="og:description" content="Escáneres ELM327, cables de diagnóstico y herramientas profesionales para motos y carros. Envíos a todo Colombia 🇨🇴">
+    <!-- 📸 LA FOTO QUE APARECE AL COMPARTIR — Cambia esta URL por la de tu producto estrella -->
+    <meta property="og:image" content="https://via.placeholder.com/600x315/f59e0b/0f172a?text=🏍️+Full+Inyección+-+Herramientas+para+Motos">
+    <!-- 📌 Tipo de contenido -->
+    <meta property="og:type" content="website">
+    <!-- 📌 URL de tu página -->
+    <meta property="og:url" content="https://daviddigital8182-alt.github.io/tienda-full-inyeccion/">
+    <!-- 📌 Nombre del sitio -->
+    <meta property="og:site_name" content="🏍️ Full Inyección">
+    
+    <!-- 📱 ESPECIAL PARA TWITTER / TIKTOK / WHATSAPP -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="🏍️ Full Inyección - Herramientas de Diagnóstico">
+    <meta name="twitter:description" content="Escáneres ELM327, cables y herramientas para motos y carros">
+    <meta name="twitter:image" content="https://via.placeholder.com/600x315/f59e0b/0f172a?text=🏍️+Full+Inyección+-+Herramientas+para+Motos">
+    <!-- ==============================================
+         🎉 FIN DE LAS ETIQUETAS MÁGICAS — TODO LO DEMÁS SIGUE IGUAL
+         ============================================== -->
+
     <style>
         * {margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
         body {background:#0f172a; color:#f8fafc; padding-bottom:80px;}
@@ -150,7 +176,6 @@
             text-decoration:none;
         }
         .opcion-compartir:hover {transform:translateX(5px); background:#475569;}
-        .opcion-compartir span {font-size:1.25rem;}
         .overlay-compartir {
             position:fixed;
             inset:0;
@@ -315,7 +340,7 @@
     `;
   }
 
-  // 📦 CARGAR PRODUCTOS — IGUAL PERO CON BOTÓN COMPARTIR AGREGADO ✅
+  // 📦 CARGAR PRODUCTOS — IGUAL ✅
   async function cargarProductos() {
     const contenedor = document.getElementById('lista-productos');
     try {
@@ -378,7 +403,7 @@
     }
   };
 
-  // 🔗 FUNCIONES COMPARTIR — NUEVAS Y ELEGANTES ✨
+  // 🔗 FUNCIONES COMPARTIR — IGUAL ✨
   let productoActual = { nombre: '', enlace: '' };
 
   window.abrirMenuCompartir = function(nombreEncode, enlace, boton) {
@@ -442,4 +467,3 @@
 </script>
 </body>
 </html>
-          
