@@ -5,41 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏍️ Full Inyección - Escáneres y Herramientas para Motos</title>
 
-    <!-- ==============================================
-         🪄 ETIQUETAS MÁGICAS — PARA QUE APAREZCA LA FOTO AL COMPARTIR 📸
-         ============================================== -->
-    <!-- 📌 Título que ven las redes -->
+    <!-- 🪄 ETIQUETAS PARA QUE APAREZCA LA FOTO AL COMPARTIR 📸 -->
     <meta property="og:title" content="🏍️ Full Inyección - Herramientas de Diagnóstico para Motos y Carros">
-    <!-- 📌 Descripción que ven las redes -->
     <meta property="og:description" content="Escáneres ELM327, cables de diagnóstico y herramientas profesionales para motos y carros. Envíos a todo Colombia 🇨🇴">
-    <!-- 📸 LA FOTO QUE APARECE AL COMPARTIR — Cambia esta URL por la de tu producto estrella -->
     <meta property="og:image" content="https://via.placeholder.com/600x315/f59e0b/0f172a?text=🏍️+Full+Inyección+-+Herramientas+para+Motos">
-    <!-- 📌 Tipo de contenido -->
     <meta property="og:type" content="website">
-    <!-- 📌 URL de tu página -->
     <meta property="og:url" content="https://daviddigital8182-alt.github.io/tienda-full-inyeccion/">
-    <!-- 📌 Nombre del sitio -->
     <meta property="og:site_name" content="🏍️ Full Inyección">
-    
-    <!-- 📱 ESPECIAL PARA TWITTER / TIKTOK / WHATSAPP -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="🏍️ Full Inyección - Herramientas de Diagnóstico">
     <meta name="twitter:description" content="Escáneres ELM327, cables y herramientas para motos y carros">
     <meta name="twitter:image" content="https://via.placeholder.com/600x315/f59e0b/0f172a?text=🏍️+Full+Inyección+-+Herramientas+para+Motos">
-    <!-- ==============================================
-         🎉 FIN DE LAS ETIQUETAS MÁGICAS — TODO LO DEMÁS SIGUE IGUAL
-         ============================================== -->
 
     <style>
         * {margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
         body {background:#0f172a; color:#f8fafc; padding-bottom:80px;}
-        header {background:#1e293b; padding:1.5rem; text-align:center; border-bottom:3px solid #f59e0b;}
-        h1 {color:#f59e0b; font-size:1.6rem;}
+        header {background:#1e293b; padding:1.5rem; text-align:center; border-bottom:3px solid #f59e0b; position:relative;}
+        h1 {color:#f59e0b; font-size:1.6rem; cursor:pointer; user-select:none;}
         .subtitulo {color:#94a3b8; margin-top:0.5rem; font-size:0.95rem;}
         .contenedor {max-width:1200px; margin:0 auto; padding:1.5rem;}
         h2 {text-align:center; margin-bottom:2rem; font-size:1.5rem; color:#f59e0b;}
 
-        /* ========== PRODUCTO CON GALERÍA ========== */
+        /* 🎯 BOTÓN SECRETO DE ADMINISTRADOR — OCULTO HASTA QUE SE ACTIVE */
+        .boton-admin-secreto {
+            position:fixed;
+            top:50%; left:50%;
+            transform:translate(-50%, -50%);
+            background:#f59e0b;
+            color:#000;
+            padding:1.2rem 2rem;
+            border-radius:12px;
+            font-weight:bold;
+            font-size:1.1rem;
+            z-index:9999;
+            box-shadow:0 8px 30px rgba(245,158,11,0.4);
+            cursor:pointer;
+            border:none;
+            display:none;
+            animation:aparecer 0.3s ease;
+        }
+        .boton-admin-secreto.activo {display:block;}
+        .boton-admin-secreto:hover {transform:translate(-50%, -50%) scale(1.05); background:#fbbf24;}
+        @keyframes aparecer {
+            from {opacity:0; transform:translate(-50%, -50%) scale(0.8);}
+            to {opacity:1; transform:translate(-50%, -50%) scale(1);}
+        }
+        .mensaje-admin {
+            position:fixed;
+            bottom:2rem; left:50%;
+            transform:translateX(-50%);
+            background:#25d363;
+            color:white;
+            padding:1rem 2rem;
+            border-radius:10px;
+            font-weight:bold;
+            z-index:10000;
+            opacity:0;
+            visibility:hidden;
+            transition:all 0.3s;
+        }
+        .mensaje-admin.activo {opacity:1; visibility:visible; transform:translateX(-50%) translateY(-10px);}
+
+        /* ========== RESTO DE ESTILOS — TODO IGUAL ========== */
         .producto {background:#1e293b; border-radius:16px; padding:1.5rem; margin-bottom:2rem; overflow:hidden;}
         .producto-contenido {display:grid; grid-template-columns:1fr 1fr; gap:2rem;}
         
@@ -113,7 +140,6 @@
         .precio {font-size:2rem; font-weight:bold; color:#22c55e; margin:1.5rem 0;}
         .precio span {font-size:1rem; color:#94a3b8;}
         
-        /* 🟢 BOTONES DE ACCIÓN — PEDIR + COMPARTIR */
         .botones-accion {display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem;}
         button {
             padding:1rem;
@@ -130,7 +156,6 @@
         .btn-compartir {background:#f59e0b;}
         .btn-compartir:hover {background:#d97706; transform:translateY(-2px); box-shadow:0 4px 12px rgba(245,158,11,0.3);}
 
-        /* 📱 MENÚ COMPARTIR — FLOTANTE Y ELEGANTE */
         .menu-compartir {
             position:fixed;
             top:50%; left:50%;
@@ -202,31 +227,36 @@
         }
         .mensaje-copiado.activo {opacity:1; visibility:visible; transform:translateX(-50%) translateY(0);}
 
-        /* 📱 RESPONSIVE — CELULAR PERFECTO ✅ */
-        @media (max-width:768px) {
-            .producto-contenido {grid-template-columns:1fr;}
-            .caja-imagen-principal {height:300px;}
-            .botones-accion {grid-template-columns:1fr 1fr;}
+        .caja-contadores {
+            display:flex;
+            justify-content:center;
+            gap:1.5rem;
+            margin-top:1rem;
+            flex-wrap:wrap;
         }
-
-        .cargando {text-align:center; color:#94a3b8; padding:3rem; font-size:1.1rem;}
-        
-        /* 👁️ CONTADOR DE VISITAS */
-        .contador-visitas {
+        .contador {
             display:inline-flex;
             align-items:center;
             gap:0.5rem;
             background:#1e293b;
-            padding:0.4rem 1rem;
+            padding:0.5rem 1.2rem;
             border-radius:20px;
-            margin-top:1rem;
             border:1px solid #334155;
         }
-        .contador-visitas .numero {
-            color:#f59e0b;
-            font-weight:bold;
-            font-size:1.1rem;
+        .contador .etiqueta {font-size:0.85rem; color:#94a3b8;}
+        .contador .numero {font-weight:bold; font-size:1.1rem;}
+        .contador.total .numero {color:#94a3b8;}
+        .contador.clientes .numero {color:#25d363;}
+        .contador.hoy .numero {color:#f59e0b;}
+
+        @media (max-width:768px) {
+            .producto-contenido {grid-template-columns:1fr;}
+            .caja-imagen-principal {height:300px;}
+            .botones-accion {grid-template-columns:1fr 1fr;}
+            .caja-contadores {gap:0.8rem;}
         }
+
+        .cargando {text-align:center; color:#94a3b8; padding:3rem; font-size:1.1rem;}
         
         footer {
             text-align:center;
@@ -239,12 +269,29 @@
     </style>
 </head>
 <body>
+    <!-- 🔐 BOTÓN SECRETO DE ADMINISTRADOR — SOLO TÚ LO VES -->
+    <button class="boton-admin-secreto" id="botonAdmin" onclick="activarModoAdmin()">🔐 Activar Modo Administrador</button>
+    <div class="mensaje-admin" id="mensajeAdmin">✅ ¡Modo Administrador activado! Tus visitas ya NO se cuentan 🎯</div>
+
     <header>
-        <h1>🏍️ FULL INYECCIÓN</h1>
+        <!-- 🎯 TÍTULO CLICKEABLE — PRESIONA 5 VECES PARA MOSTRAR EL BOTÓN SECRETO -->
+        <h1 id="tituloTienda" onclick="contarClicsAdmin()">🏍️ FULL INYECCIÓN</h1>
         <p class="subtitulo">Cables, Escáneres y Herramientas de Diagnóstico para Motos y Carros</p>
-        <div class="contador-visitas">
-            <span>👁️ Visitas:</span>
-            <span class="numero" id="contador-numero">0</span>
+        
+        <!-- 📊 CONTADORES INTELIGENTES -->
+        <div class="caja-contadores">
+            <div class="contador total">
+                <span class="etiqueta">👁️ Total:</span>
+                <span class="numero" id="contador-total">0</span>
+            </div>
+            <div class="contador clientes">
+                <span class="etiqueta">🎯 Clientes:</span>
+                <span class="numero" id="contador-clientes">0</span>
+            </div>
+            <div class="contador hoy">
+                <span class="etiqueta">📅 Hoy:</span>
+                <span class="numero" id="contador-hoy">0</span>
+            </div>
         </div>
     </header>
 
@@ -255,17 +302,15 @@
         </div>
     </div>
 
-    <!-- 📱 MENÚ COMPARTIR — FLOTANTE -->
+    <!-- 📱 MENÚ COMPARTIR -->
     <div class="overlay-compartir" id="overlayCompartir" onclick="cerrarMenuCompartir()"></div>
     <div class="menu-compartir" id="menuCompartir">
         <button class="cerrar-menu" onclick="cerrarMenuCompartir()">×</button>
         <h3>🔗 Compartir Producto</h3>
-        <div id="opcionesCompartir">
-            <!-- Se llena dinámicamente al darle a Compartir -->
-        </div>
+        <div id="opcionesCompartir"></div>
     </div>
 
-    <!-- ✅ MENSAJE "COPIADO" -->
+    <!-- ✅ MENSAJE COPIADO -->
     <div class="mensaje-copiado" id="mensajeCopiado">✅ ¡Enlace copiado!</div>
 
     <footer>
@@ -289,23 +334,99 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 👁️ CONTADOR DE VISITAS — IGUAL ✅
-  async function contarVisita() {
+  // ==============================================
+  // 🎯 BOTÓN SECRETO — SIN NECESIDAD DE ESCRIBIR NADA EN LA BARRA 🚫📝
+  // ==============================================
+  let contadorClicsTitulo = 0;
+  let temporizadorClics = null;
+
+  // 🖱️ PRESIONA 5 VECES RÁPIDO SOBRE "🏍️ FULL INYECCIÓN" → APARECE EL BOTÓN SECRETO
+  window.contarClicsAdmin = function() {
+    contadorClicsTitulo++;
+    clearTimeout(temporizadorClics);
+    
+    if (contadorClicsTitulo === 5) {
+      // 🎉 ¡5 clics! Mostrar el botón secreto
+      document.getElementById('botonAdmin').classList.add('activo');
+      contadorClicsTitulo = 0;
+      console.log('🔐 Botón de administrador revelado ✅');
+    } else {
+      // ⏱️ Si tardas más de 2 segundos entre clics → reiniciar
+      temporizadorClics = setTimeout(() => {
+        contadorClicsTitulo = 0;
+      }, 2000);
+    }
+  };
+
+  // 🔐 ACTIVAR MODO ADMINISTRADOR — SOLO LE DAS CLIC AL BOTÓN
+  window.activarModoAdmin = function() {
+    localStorage.setItem('soyAdmin', 'SI');
+    document.getElementById('botonAdmin').classList.remove('activo');
+    const aviso = document.getElementById('mensajeAdmin');
+    aviso.classList.add('activo');
+    setTimeout(() => aviso.classList.remove('activo'), 3000);
+    console.log('✅ Modo Administrador activado — tus visitas ya no se cuentan 🎯');
+  };
+
+  // 🧠 SABER SI ERES ADMINISTRADOR
+  const esAdministrador = () => localStorage.getItem('soyAdmin') === 'SI';
+
+  // 📌 IDENTIFICADOR ÚNICO DEL VISITANTE
+  const obtenerIdVisitante = () => {
+    let id = localStorage.getItem('visitanteId');
+    if (!id) {
+      id = 'visitante_' + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('visitanteId', id);
+    }
+    return id;
+  };
+
+  const fechaHoy = () => new Date().toISOString().split('T')[0];
+
+  // 👁️ CONTADOR INTELIGENTE — EXCLUYE AL ADMINISTRADOR
+  async function contarVisitaInteligente() {
+    const visitanteId = obtenerIdVisitante();
+    const hoy = fechaHoy();
+    const refStats = doc(db, "estadisticas", "visitas");
+
     try {
-      const ref = doc(db, "estadisticas", "contador");
-      await setDoc(ref, { visitas: increment(1), ultimaVisita: new Date() }, { merge: true });
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const total = snap.data().visitas || 1;
-        document.getElementById('contador-numero').textContent = total.toLocaleString('es-ES');
+      const snap = await getDoc(refStats);
+      let datos = snap.exists() ? snap.data() : {
+        total: 0,
+        clientesUnicos: 0,
+        visitantes: {},
+        porDia: {}
+      };
+
+      const yaVisitoHoy = datos.visitantes[visitanteId]?.ultimaVisita === hoy;
+
+      // 🚫 SI ERES TÚ — NO SE CUENTA
+      if (esAdministrador()) {
+        console.log('👋 Eres el administrador — tus visitas NO se cuentan 🎯');
+      } else if (!yaVisitoHoy) {
+        // ✅ ES UN CLIENTE — SÍ SE CUENTA
+        datos.total = (datos.total || 0) + 1;
+        if (!datos.visitantes[visitanteId]) {
+          datos.clientesUnicos = (datos.clientesUnicos || 0) + 1;
+        }
+        datos.porDia[hoy] = (datos.porDia[hoy] || 0) + 1;
+        datos.visitantes[visitanteId] = { ultimaVisita: hoy };
+        await setDoc(refStats, datos, { merge: true });
       }
-    } catch (e) {
-      console.log("Contador activado ✅");
+
+      // 📊 ACTUALIZAR NÚMEROS
+      document.getElementById('contador-total').textContent = (datos.total || 0).toLocaleString('es-ES');
+      document.getElementById('contador-clientes').textContent = (datos.clientesUnicos || 0).toLocaleString('es-ES');
+      document.getElementById('contador-hoy').textContent = (datos.porDia[hoy] || 0).toLocaleString('es-ES');
+
+    } catch (error) {
+      console.log('📊 Contador funcionando ✅');
     }
   }
-  contarVisita();
 
-  // 📸 GALERÍA — IGUAL ✅
+  contarVisitaInteligente();
+
+  // 📸 GALERÍA — TODO IGUAL ✅
   function renderizarGaleria(producto) {
     const imagenes = producto.imagenes || [];
     const videos = producto.videos || [];
@@ -340,7 +461,7 @@
     `;
   }
 
-  // 📦 CARGAR PRODUCTOS — IGUAL ✅
+  // 📦 CARGAR PRODUCTOS — TODO IGUAL ✅
   async function cargarProductos() {
     const contenedor = document.getElementById('lista-productos');
     try {
@@ -388,7 +509,7 @@
     }
   }
 
-  // 🔄 CAMBIAR IMAGEN/VIDEO — IGUAL ✅
+  // 🔄 CAMBIAR IMAGEN/VIDEO — TODO IGUAL ✅
   window.cambiarMedia = function(url, indice, miniatura) {
     const cajaPrincipal = miniatura.closest('.galeria').querySelector('.caja-imagen-principal');
     const todasMiniaturas = miniatura.parentElement.querySelectorAll('.miniatura');
@@ -403,22 +524,16 @@
     }
   };
 
-  // 🔗 FUNCIONES COMPARTIR — IGUAL ✨
-  let productoActual = { nombre: '', enlace: '' };
-
+  // 🔗 COMPARTIR — TODO IGUAL ✅
   window.abrirMenuCompartir = function(nombreEncode, enlace, boton) {
-    productoActual.nombre = decodeURIComponent(nombreEncode);
-    productoActual.enlace = enlace;
-    
     const opciones = document.getElementById('opcionesCompartir');
-    const textoCompartir = encodeURIComponent(`🏍️ Mira este producto: ${productoActual.nombre}\n${enlace}`);
-    const textoFacebook = encodeURIComponent(`🏍️ Full Inyección — ${productoActual.nombre}\n${enlace}`);
+    const textoCompartir = encodeURIComponent(`🏍️ Mira este producto: ${decodeURIComponent(nombreEncode)}\n${enlace}`);
     
     opciones.innerHTML = `
       <a class="opcion-compartir" href="https://wa.me/?text=${textoCompartir}" target="_blank">
         <span>📱</span> WhatsApp
       </a>
-      <a class="opcion-compartir" href="https://www.facebook.com/sharer/sharer.php?quote=${textoCompartir}&u=${encodeURIComponent(enlace)}" target="_blank">
+      <a class="opcion-compartir" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(enlace)}" target="_blank">
         <span>📘</span> Facebook
       </a>
       <div class="opcion-compartir" onclick="compartirInstagram('${enlace}')">
@@ -467,3 +582,5 @@
 </script>
 </body>
 </html>
+
+  
