@@ -13,17 +13,21 @@
         .contenedor {max-width:800px; margin:0 auto; padding:1.5rem;}
         .caja {background:#1e293b; border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;}
         h2 {color:#f59e0b; margin-bottom:1rem; font-size:1.3rem;}
+        h3 {color:#94a3b8; margin:1.2rem 0 0.5rem; font-size:1rem;}
         input, textarea, button {width:100%; padding:0.9rem; margin:0.5rem 0; border-radius:8px; border:none; font-size:1rem;}
         input, textarea {background:#334155; color:white; border:1px solid #475569;}
+        input[type="file"] {background:transparent; border:none; padding:0.5rem;}
         button {font-weight:bold; cursor:pointer; transition:0.2s;}
         .btn-amarillo {background:#f59e0b; color:#000;}
         .btn-verde {background:#22c55e; color:white;}
         .btn-rojo {background:#ef4444; color:white;}
         .btn-nube {background:#3b82f6; color:white;}
+        .btn-subir {background:#8b5cf6; color:white;}
         .btn-amarillo:hover {background:#fbbf24;}
         .btn-verde:hover {background:#16a34a;}
         .btn-rojo:hover {background:#dc2626;}
         .btn-nube:hover {background:#2563eb;}
+        .btn-subir:hover {background:#7c3aed;}
         .producto-item {background:#334155; padding:1rem; border-radius:8px; margin:0.8rem 0; border-left:4px solid #f59e0b;}
         .oculto {display:none !important;}
         .mensaje {padding:1rem; border-radius:8px; margin:1rem 0; text-align:center; font-weight:bold;}
@@ -36,11 +40,15 @@
         .conectado {background:#16a34a; color:white;}
         .desconectado {background:#dc2626; color:white;}
         
-        /* 📸 Galería de imágenes en el panel */
+        /* 📸 Vista previa de imágenes */
         .preview-imagen {width:100px; height:80px; object-fit:cover; border-radius:6px; margin:0.5rem; border:2px solid #475569;}
         .lista-imagenes {display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0;}
         .item-imagen {position:relative;}
         .btn-quitar-img {position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+        
+        /* 📊 Barra de progreso de subida */
+        .barra-progreso {width:100%; height:8px; background:#334155; border-radius:4px; margin:0.5rem 0; overflow:hidden;}
+        .progreso {height:100%; background:linear-gradient(90deg, #25d363, #f59e0b); width:0%; transition:width 0.3s; border-radius:4px;}
     </style>
 </head>
 <body>
@@ -64,7 +72,7 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
-            <p class="subtitulo">Agrega productos con fotos y videos en la nube ☁️</p>
+            <p class="subtitulo">📸 Sube fotos directo desde tu celular a la nube ☁️</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -72,23 +80,33 @@
         <div class="contenedor">
             <div id="mensaje" class="mensaje oculto"></div>
 
-            <!-- ➕ AGREGAR PRODUCTO CON FOTOS Y VIDEOS -->
+            <!-- ➕ AGREGAR PRODUCTO -->
             <div class="caja">
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
                 <textarea id="descripcion" rows="3" placeholder="Descripción detallada"></textarea>
                 <input type="number" id="precio" placeholder="Precio sin puntos: ej. 45000">
                 
-                <!-- 📸 IMÁGENES - Agregar múltiples -->
-                <h3 style="color:#94a3b8; margin:1rem 0 0.5rem;">📸 Imágenes del producto</h3>
-                <input type="text" id="imagenUrl" placeholder="Pega el enlace de una imagen (ej: https://i.imgur.com/abc.jpg)">
-                <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarImagen()">➕ Agregar imagen</button>
+                <!-- 📸 SUBIR FOTOS DIRECTO DESDE EL CELULAR -->
+                <h3>📸 Subir fotos desde tu celular 📱⬆️</h3>
+                <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
+                <p class="instruccion">✅ Toca "Elegir archivos" → selecciona fotos de tu galería → se suben solas ☁️</p>
+                <div class="barra-progreso" id="barraSubida" style="display:none;">
+                    <div class="progreso" id="progreso"></div>
+                </div>
+                
+                <!-- 📸 O PEGAR ENLACES DE IMÁGENES -->
+                <h3>🔗 O pegar enlaces de fotos</h3>
+                <input type="text" id="imagenUrl" placeholder="Pega el enlace de una imagen">
+                <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarImagen()">➕ Agregar por enlace</button>
+                
+                <!-- 📸 VISTA PREVIA DE TODAS LAS FOTOS -->
                 <div class="lista-imagenes" id="vistaImagenes">
-                    <p style="color:#64748b; font-size:0.9rem;">Sin imágenes aún. Agrega enlaces de fotos arriba.</p>
+                    <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu galería o pega un enlace arriba.</p>
                 </div>
 
-                <!-- 🎬 VIDEOS -->
-                <h3 style="color:#94a3b8; margin:1.5rem 0 0.5rem;">🎬 Video del producto (opcional)</h3>
+                <!-- 🎬 VIDEO -->
+                <h3>🎬 Video de YouTube (opcional)</h3>
                 <input type="text" id="videoUrl" placeholder="Enlace de YouTube: ej: https://www.youtube.com/embed/ABC123">
 
                 <button class="btn-verde" onclick="guardarEnNube()" style="margin-top:1.5rem; font-size:1.1rem;">☁️ Guardar Producto Completo</button>
@@ -145,7 +163,7 @@
       document.getElementById('pantallaClave').classList.add('oculto');
       document.getElementById('panelControl').classList.remove('oculto');
       cargarDesdeNube();
-      mostrarMensaje("✅ ¡Bienvenido! Conectado a la nube ☁️", "exito");
+      mostrarMensaje("✅ ¡Bienvenido! Sube fotos directo desde tu celular 📱", "exito");
     } else {
       mostrarMensaje("❌ Clave incorrecta", "aviso");
     }
@@ -166,7 +184,54 @@
     setTimeout(() => caja.classList.add('oculto'), 4000);
   }
 
-  // 📸 Agregar imagen a la lista previa
+  // 📱📸 PROCESAR FOTOS SUBIDAS DESDE EL CELULAR — ¡LA MAGIA OCURRE AQUÍ! ⚡
+  window.procesarFotos = function(event) {
+    const archivos = event.target.files;
+    if (!archivos || archivos.length === 0) return;
+
+    const barra = document.getElementById('barraSubida');
+    const progreso = document.getElementById('progreso');
+    barra.style.display = "block";
+
+    let procesadas = 0;
+    const total = archivos.length;
+
+    for (let i = 0; i < archivos.length; i++) {
+      const archivo = archivos[i];
+      
+      // ✅ Convertir la foto a una URL que funciona en internet
+      const lector = new FileReader();
+      
+      lector.onload = function(e) {
+        const urlBase64 = e.target.result;
+        imagenes.push(urlBase64);
+        procesadas++;
+        
+        // 📊 Actualizar barra de progreso
+        const porcentaje = Math.round((procesadas / total) * 100);
+        progreso.style.width = porcentaje + "%";
+        
+        // 📸 Actualizar vista previa
+        renderizarVistaImagenes();
+        
+        // ✅ Cuando terminó todo
+        if (procesadas === total) {
+          setTimeout(() => {
+            barra.style.display = "none";
+            progreso.style.width = "0%";
+          }, 1000);
+          mostrarMensaje(`✅ ${total} foto(s) cargada(s) perfectamente 📸`, "exito");
+        }
+      };
+      
+      lector.readAsDataURL(archivo);
+    }
+    
+    // Limpiar el input para poder subir más fotos después
+    event.target.value = "";
+  };
+
+  // 🔗 Agregar imagen por enlace
   window.agregarImagen = function() {
     const url = document.getElementById('imagenUrl').value.trim();
     if (!url) {
@@ -179,7 +244,7 @@
     mostrarMensaje(`✅ Imagen agregada (total: ${imagenes.length})`, "exito");
   };
 
-  // 📸 Quitar imagen de la lista
+  // ❌ Quitar imagen de la lista
   window.quitarImagen = function(indice) {
     imagenes.splice(indice, 1);
     renderizarVistaImagenes();
@@ -189,12 +254,12 @@
   function renderizarVistaImagenes() {
     const contenedor = document.getElementById('vistaImagenes');
     if (imagenes.length === 0) {
-      contenedor.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin imágenes aún. Agrega enlaces de fotos arriba.</p>';
+      contenedor.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu galería o pega un enlace arriba.</p>';
       return;
     }
     contenedor.innerHTML = imagenes.map((url, i) => `
       <div class="item-imagen">
-        <img src="${url}" class="preview-imagen" alt="Imagen ${i+1}" onerror="this.src='https://via.placeholder.com/100x80/334155/94a3b8?text=❌'">
+        <img src="${url}" class="preview-imagen" alt="Foto ${i+1}" onerror="this.src='https://via.placeholder.com/100x80/334155/94a3b8?text=❌'">
         <button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button>
       </div>
     `).join('');
@@ -222,9 +287,9 @@
       };
 
       await addDoc(collection(db, COLLECTION), datos);
-      mostrarMensaje(`✅ Producto "${nombre}" guardado en la nube ☁️`, "exito");
+      mostrarMensaje(`✅ Producto "${nombre}" guardado en la nube ☁️📸`, "exito");
       
-      // Limpiar todo
+      // 🧹 Limpiar todo
       document.getElementById('nombre').value = "";
       document.getElementById('descripcion').value = "";
       document.getElementById('precio').value = "";
@@ -264,7 +329,7 @@
           <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${p.nombre}</h4>
           <p style="color:#cbd5e1; margin-bottom:0.5rem;">${p.descripcion || 'Sin descripción'}</p>
           <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
-          <p style="color:#94a3b8; font-size:0.9rem;">📸 ${(p.imagenes || []).length} imagen(es) ${(p.videos || []).length > 0 ? '| 🎬 1 video' : ''}</p>
+          <p style="color:#94a3b8; font-size:0.9rem;">📸 ${(p.imagenes || []).length} foto(s) ${(p.videos || []).length > 0 ? '| 🎬 1 video' : ''}</p>
           <div style="display:flex; gap:0.5rem; margin-top:1rem;">
             <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="editarProducto('${p.id}')">✏️ Editar</button>
             <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
