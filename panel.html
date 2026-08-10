@@ -1,4 +1,4 @@
-       <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -19,17 +19,23 @@
         .btn-amarillo {background:#f59e0b; color:#000;}
         .btn-verde {background:#22c55e; color:white;}
         .btn-rojo {background:#ef4444; color:white;}
+        .btn-nube {background:#3b82f6; color:white;}
         .btn-amarillo:hover {background:#fbbf24;}
         .btn-verde:hover {background:#16a34a;}
         .btn-rojo:hover {background:#dc2626;}
+        .btn-nube:hover {background:#2563eb;}
         .producto-item {background:#334155; padding:1rem; border-radius:8px; margin:0.8rem 0; border-left:4px solid #f59e0b;}
         .oculto {display:none !important;}
         .mensaje {padding:1rem; border-radius:8px; margin:1rem 0; text-align:center; font-weight:bold;}
         .exito {background:#16a34a; color:white;}
         .aviso {background:#f59e0b; color:#000;}
+        .error {background:#dc2626; color:white;}
         .clave-input {max-width:350px; margin:3rem auto; display:block;}
         .instruccion {color:#94a3b8; font-size:0.9rem; margin-bottom:1rem; text-align:center;}
         .btn-whatsapp {background:#25d363; color:white; margin-top:1rem;}
+        .estado-nube {padding:0.5rem; border-radius:6px; margin-bottom:1rem; text-align:center; font-size:0.9rem;}
+        .conectado {background:#16a34a; color:white;}
+        .desconectado {background:#dc2626; color:white;}
     </style>
 </head>
 <body>
@@ -45,7 +51,7 @@
             <input type="password" id="inputClave" placeholder="Escribe tu clave secreta">
             <button class="btn-amarillo" onclick="verificarClave()">🔓 Entrar al Panel</button>
             <button class="btn-whatsapp" onclick="localStorage.clear(); location.reload();">🔄 Restablecer si olvidaste tu clave</button>
-            <p class="instruccion">💡 Clave por defecto: <strong>admin123</strong><br>Puedes cambiarla en el código cuando quieras</p>
+            <p class="instruccion">💡 Clave por defecto: <strong>admin123</strong></p>
         </div>
     </div>
 
@@ -53,7 +59,8 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
-            <p class="subtitulo">Agrega, edita y organiza tus productos</p>
+            <p class="subtitulo">Agrega, edita y organiza tus productos en la nube ☁️</p>
+            <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
 
@@ -66,208 +73,199 @@
                 <h2>➕ Agregar Nuevo Producto</h2>
                 <input type="text" id="nombre" placeholder="Nombre del producto">
                 <textarea id="descripcion" rows="3" placeholder="Descripción del producto"></textarea>
-                <input type="text" id="precio" placeholder="Precio: ej. 45.000 COP">
-                <button class="btn-verde" onclick="agregarProducto()">💾 Guardar Producto</button>
+                <input type="text" id="precio" placeholder="Precio: ej. 45000">
+                <button class="btn-nube" onclick="guardarEnNube()">☁️ Guardar en la Nube</button>
             </div>
 
             <!-- 📦 LISTA DE PRODUCTOS -->
             <div class="caja">
                 <h2>📦 Mis Productos (<span id="contador">0</span>)</h2>
                 <div id="listaProductos">
-                    <p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No tienes productos aún. Agrega el primero arriba 👆</p>
+                    <p style="color:#94a3b8; text-align:center; padding:2rem;">📋 Cargando productos desde la nube...</p>
                 </div>
-            </div>
-
-            <!-- 💾 COPIA DE SEGURIDAD -->
-            <div class="caja">
-                <h2>💾 Copia de Seguridad</h2>
-                <button class="btn-amarillo" onclick="exportarDatos()">📤 Exportar / Guardar Todo</button>
-                <button class="btn-verde" onclick="importarDatos()">📥 Importar / Restaurar</button>
-                <p class="instruccion">💡 Los datos se guardan automáticamente en tu teléfono</p>
             </div>
         </div>
     </div>
 
-    <script>
-        // 🔐 CONFIGURACIÓN
-        const CLAVE_SECRETA = "admin123";
-        const CLAVE_STORAGE = "fullinyeccion_clave";
-        const PRODUCTOS_STORAGE = "fullinyeccion_productos";
-        const NUMERO_WHATSAPP = "573167188394"; // ✅ Tu número ya configurado
+<!-- ==============================================
+     ✅ FIREBASE - CONEXIÓN A LA NUBE
+     ============================================== -->
+<script type="module">
+  // Importar funciones de Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        let productos = [];
+  // Tu configuración real
+  const firebaseConfig = {
+    apiKey: "AIzaSyCe5Tj9FOXxwX71OocngC1XbjqZNo76muM",
+    authDomain: "full-inyeccion.firebaseapp.com",
+    projectId: "full-inyeccion",
+    storageBucket: "full-inyeccion.firebasestorage.app",
+    messagingSenderId: "279801018722",
+    appId: "1:279801018722:web:ba3c95e7598ebebdadd43b"
+  };
 
-        // 🔐 Verificar clave
-        function verificarClave() {
-            const claveIngresada = document.getElementById('inputClave').value;
-            if (claveIngresada === CLAVE_SECRETA) {
-                localStorage.setItem(CLAVE_STORAGE, "autenticado");
-                document.getElementById('pantallaClave').classList.add('oculto');
-                document.getElementById('panelControl').classList.remove('oculto');
-                cargarProductos();
-                mostrarMensaje("✅ ¡Bienvenido! Panel de control listo", "exito");
-            } else {
-                mostrarMensaje("❌ Clave incorrecta — toca 'Restablecer' y vuelve a intentar", "aviso");
-            }
-        }
+  // Inicializar
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const COLLECTION = "productos";
 
-        // 🚪 Cerrar sesión
-        function cerrarSesion() {
-            localStorage.removeItem(CLAVE_STORAGE);
-            location.reload();
-        }
+  // 🔐 CLAVE
+  const CLAVE_SECRETA = "admin123";
+  const CLAVE_STORAGE = "fullinyeccion_clave";
 
-        // ✅ Mostrar mensaje
-        function mostrarMensaje(texto, tipo) {
-            const caja = document.getElementById('mensaje');
-            caja.textContent = texto;
-            caja.className = `mensaje ${tipo}`;
-            caja.classList.remove('oculto');
-            setTimeout(() => caja.classList.add('oculto'), 3000);
-        }
+  let productos = [];
 
-        // 📦 Cargar productos guardados
-        function cargarProductos() {
-            const guardados = localStorage.getItem(PRODUCTOS_STORAGE);
-            productos = guardados ? JSON.parse(guardados) : [];
-            renderizarLista();
-        }
+  // ✅ Estado de conexión
+  document.addEventListener('DOMContentLoaded', () => {
+    const estado = document.getElementById('estadoNube');
+    if (estado) {
+      estado.textContent = "✅ Conectado a la Nube ☁️";
+      estado.className = "estado-nube conectado";
+    }
+  });
 
-        // 💾 Guardar productos
-        function guardarProductos() {
-            localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(productos));
-            renderizarLista();
-        }
+  // 🔐 Verificar clave
+  window.verificarClave = function() {
+    const claveIngresada = document.getElementById('inputClave').value;
+    if (claveIngresada === CLAVE_SECRETA) {
+      localStorage.setItem(CLAVE_STORAGE, "autenticado");
+      document.getElementById('pantallaClave').classList.add('oculto');
+      document.getElementById('panelControl').classList.remove('oculto');
+      cargarDesdeNube();
+      mostrarMensaje("✅ ¡Bienvenido! Conectado a la nube ☁️", "exito");
+    } else {
+      mostrarMensaje("❌ Clave incorrecta — vuelve a intentar", "aviso");
+    }
+  };
 
-        // ➕ Agregar producto
-        function agregarProducto() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const descripcion = document.getElementById('descripcion').value.trim();
-            const precio = document.getElementById('precio').value.trim();
+  // 🚪 Cerrar sesión
+  window.cerrarSesion = function() {
+    localStorage.removeItem(CLAVE_STORAGE);
+    location.reload();
+  };
 
-            if (!nombre || !precio) {
-                mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
-                return;
-            }
+  // ✅ Mostrar mensaje
+  function mostrarMensaje(texto, tipo) {
+    const caja = document.getElementById('mensaje');
+    caja.textContent = texto;
+    caja.className = `mensaje ${tipo}`;
+    caja.classList.remove('oculto');
+    setTimeout(() => caja.classList.add('oculto'), 4000);
+  }
 
-            productos.push({
-                id: Date.now(),
-                nombre,
-                descripcion,
-                precio
-            });
+  // ☁️ Guardar producto en la nube
+  window.guardarEnNube = async function() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const descripcion = document.getElementById('descripcion').value.trim();
+    const precio = document.getElementById('precio').value.trim();
 
-            guardarProductos();
-            mostrarMensaje(`✅ Producto "${nombre}" agregado con éxito`, "exito");
+    if (!nombre || !precio) {
+      mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
+      return;
+    }
 
-            // Limpiar campos
-            document.getElementById('nombre').value = "";
-            document.getElementById('descripcion').value = "";
-            document.getElementById('precio').value = "";
-        }
+    try {
+      await addDoc(collection(db, COLLECTION), {
+        nombre,
+        descripcion,
+        precio: Number(precio)
+      });
+      mostrarMensaje(`✅ Producto "${nombre}" guardado en la nube ☁️`, "exito");
+      
+      // Limpiar campos
+      document.getElementById('nombre').value = "";
+      document.getElementById('descripcion').value = "";
+      document.getElementById('precio').value = "";
+      
+      // Recargar lista
+      await cargarDesdeNube();
+    } catch (error) {
+      mostrarMensaje("❌ Error al guardar: " + error.message, "error");
+    }
+  };
 
-        // 🗑️ Eliminar producto
-        function eliminarProducto(id) {
-            if (confirm("¿Seguro que quieres eliminar este producto?")) {
-                productos = productos.filter(p => p.id !== id);
-                guardarProductos();
-                mostrarMensaje("✅ Producto eliminado", "exito");
-            }
-        }
+  // ☁️ Cargar productos desde la nube
+  async function cargarDesdeNube() {
+    const lista = document.getElementById('listaProductos');
+    try {
+      const querySnapshot = await getDocs(collection(db, COLLECTION));
+      productos = [];
+      lista.innerHTML = "";
+      document.getElementById('contador').textContent = querySnapshot.size;
 
-        // ✏️ Editar producto
-        function editarProducto(id) {
-            const prod = productos.find(p => p.id === id);
-            if (!prod) return;
+      if (querySnapshot.empty) {
+        lista.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';
+        return;
+      }
 
-            const nuevoNombre = prompt("Nuevo nombre:", prod.nombre);
-            if (nuevoNombre === null) return;
-            const nuevaDesc = prompt("Nueva descripción:", prod.descripcion);
-            if (nuevaDesc === null) return;
-            const nuevoPrecio = prompt("Nuevo precio:", prod.precio);
-            if (nuevoPrecio === null) return;
+      querySnapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        p.id = docSnap.id;
+        productos.push(p);
 
-            prod.nombre = nuevoNombre;
-            prod.descripcion = nuevaDesc;
-            prod.precio = nuevoPrecio;
-            guardarProductos();
-            mostrarMensaje("✅ Producto actualizado", "exito");
-        }
+        const div = document.createElement('div');
+        div.className = "producto-item";
+        div.innerHTML = `
+          <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${p.nombre}</h4>
+          <p style="color:#cbd5e1; margin-bottom:0.5rem;">${p.descripcion || 'Sin descripción'}</p>
+          <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p>
+          <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+            <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="editarProducto('${p.id}')">✏️ Editar</button>
+            <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button>
+          </div>
+        `;
+        lista.appendChild(div);
+      });
+    } catch (error) {
+      lista.innerHTML = `<p style="color:#ef4444; text-align:center; padding:2rem;">❌ Error al cargar: ${error.message}</p>`;
+    }
+  }
 
-        // 📋 Renderizar lista
-        function renderizarLista() {
-            const lista = document.getElementById('listaProductos');
-            document.getElementById('contador').textContent = productos.length;
+  // 🗑️ Eliminar producto
+  window.eliminarProducto = async function(id) {
+    if (confirm("¿Seguro que quieres eliminar este producto de la nube?")) {
+      try {
+        await deleteDoc(doc(db, COLLECTION, id));
+        mostrarMensaje("✅ Producto eliminado de la nube ☁️", "exito");
+        await cargarDesdeNube();
+      } catch (error) {
+        mostrarMensaje("❌ Error al eliminar: " + error.message, "error");
+      }
+    }
+  };
 
-            if (productos.length === 0) {
-                lista.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:2rem;">📋 No tienes productos aún. Agrega el primero arriba 👆</p>';
-                return;
-            }
+  // ✏️ Editar producto
+  window.editarProducto = async function(id) {
+    const prod = productos.find(p => p.id === id);
+    if (!prod) return;
 
-            lista.innerHTML = "";
-            productos.forEach(prod => {
-                const div = document.createElement('div');
-                div.className = "producto-item";
-                div.innerHTML = `
-                    <h4 style="color:#f59e0b; font-size:1.1rem; margin-bottom:0.5rem;">${prod.nombre}</h4>
-                    <p style="color:#cbd5e1; margin-bottom:0.5rem;">${prod.descripcion || 'Sin descripción'}</p>
-                    <p style="color:#22c55e; font-weight:bold; font-size:1.2rem;">${prod.precio}</p>
-                    <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                        <button class="btn-amarillo" style="flex:1; padding:0.6rem;" onclick="editarProducto(${prod.id})">✏️ Editar</button>
-                        <button class="btn-rojo" style="flex:1; padding:0.6rem;" onclick="eliminarProducto(${prod.id})">🗑️ Eliminar</button>
-                    </div>
-                `;
-                lista.appendChild(div);
-            });
-        }
+    const nuevoNombre = prompt("Nuevo nombre:", prod.nombre);
+    if (nuevoNombre === null) return;
+    const nuevaDesc = prompt("Nueva descripción:", prod.descripcion || "");
+    if (nuevaDesc === null) return;
+    const nuevoPrecio = prompt("Nuevo precio:", prod.precio);
+    if (nuevoPrecio === null) return;
 
-        // 📤 Exportar datos
-        function exportarDatos() {
-            const texto = JSON.stringify(productos, null, 2);
-            const blob = new Blob([texto], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `fullinyeccion-backup-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            mostrarMensaje("✅ Copia de seguridad descargada", "exito");
-        }
+    try {
+      await updateDoc(doc(db, COLLECTION, id), {
+        nombre: nuevoNombre,
+        descripcion: nuevaDesc,
+        precio: Number(nuevoPrecio)
+      });
+      mostrarMensaje("✅ Producto actualizado en la nube ☁️", "exito");
+      await cargarDesdeNube();
+    } catch (error) {
+      mostrarMensaje("❌ Error al editar: " + error.message, "error");
+    }
+  };
 
-        // 📥 Importar datos
-        function importarDatos() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const archivo = e.target.files[0];
-                if (!archivo) return;
-                const lector = new FileReader();
-                lector.onload = (event) => {
-                    try {
-                        const datos = JSON.parse(event.target.result);
-                        if (confirm(`⚠️ Se van a cargar ${datos.length} productos. ¿Reemplazar los actuales?`)) {
-                            productos = datos;
-                            guardarProductos();
-                            mostrarMensaje(`✅ ${datos.length} productos restaurados`, "exito");
-                        }
-                    } catch {
-                        mostrarMensaje("❌ Archivo inválido", "aviso");
-                    }
-                };
-                lector.readAsText(archivo);
-            };
-            input.click();
-        }
-
-        // 🔁 Auto-login si ya está autenticado
-        window.onload = () => {
-            if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
-                document.getElementById('pantallaClave').classList.add('oculto');
-                document.getElementById('panelControl').classList.remove('oculto');
-                cargarProductos();
-            }
-        };
-    </script>
+  // 🔁 Auto-login
+  if (localStorage.getItem(CLAVE_STORAGE) === "autenticado") {
+    document.getElementById('pantallaClave').classList.add('oculto');
+    document.getElementById('panelControl').classList.remove('oculto');
+    setTimeout(cargarDesdeNube, 300);
+  }
+</script>
 </body>
 </html>
-     
