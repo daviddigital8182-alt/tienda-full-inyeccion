@@ -118,8 +118,6 @@
         }
 
         .cargando {text-align:center; color:#94a3b8; padding:3rem; font-size:1.1rem;}
-        .admin-link {text-align:center; margin-top:3rem;}
-        .admin-link a {color:#64748b; font-size:0.9rem; text-decoration:none;}
         footer {
             text-align:center;
             padding:2rem;
@@ -141,9 +139,6 @@
         <div id="lista-productos">
             <div class="cargando">⏳ Cargando productos desde la nube...</div>
         </div>
-        <div class="admin-link">
-            <a href="panel.html">🔐 Panel de Administración — Agregar productos</a>
-        </div>
     </div>
 
     <footer>
@@ -151,9 +146,6 @@
         <p>🚚 Envíos a todo el país | 🏍️ Full Inyección © 2026</p>
     </footer>
 
-<!-- ==============================================
-     ✅ FIREBASE + GALERÍA ARREGLADA — IMAGENES SIEMPRE DENTRO DE SU CAJA
-     ============================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -172,9 +164,19 @@
 
   // 📸 Renderizar galería — IMAGEN SIEMPRE DENTRO DE SU CAJA ✅
   function renderizarGaleria(producto) {
-    const imagenes = producto.imagenes || ["https://via.placeholder.com/600x400/1e293b/f59e0b?text=Producto"];
+    const imagenes = producto.imagenes || [];
     const videos = producto.videos || [];
     const todos = [...imagenes, ...videos];
+
+    if (todos.length === 0) {
+      return `
+        <div class="galeria">
+          <div class="caja-imagen-principal">
+            <div style="color:#94a3b8; text-align:center;">📷 Sin imagen disponible</div>
+          </div>
+        </div>
+      `;
+    }
 
     return `
       <div class="galeria">
