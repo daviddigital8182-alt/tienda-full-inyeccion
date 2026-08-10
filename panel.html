@@ -46,9 +46,10 @@
         .item-imagen {position:relative;}
         .btn-quitar-img {position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
         
-        /* 📊 Barra de progreso de subida */
+        /* 📊 Barra de progreso */
         .barra-progreso {width:100%; height:8px; background:#334155; border-radius:4px; margin:0.5rem 0; overflow:hidden;}
         .progreso {height:100%; background:linear-gradient(90deg, #25d363, #f59e0b); width:0%; transition:width 0.3s; border-radius:4px;}
+        .info-tamano {font-size:0.85rem; color:#94a3b8; margin-top:0.3rem;}
     </style>
 </head>
 <body>
@@ -72,7 +73,7 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ PANEL DE CONTROL — FULL INYECCIÓN</h1>
-            <p class="subtitulo">📸 Sube fotos directo desde tu celular a la nube ☁️</p>
+            <p class="subtitulo">📸 Sube fotos comprimidas automáticamente ☁️</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -87,17 +88,18 @@
                 <textarea id="descripcion" rows="3" placeholder="Descripción detallada"></textarea>
                 <input type="number" id="precio" placeholder="Precio sin puntos: ej. 45000">
                 
-                <!-- 📸 SUBIR FOTOS DIRECTO DESDE EL CELULAR -->
-                <h3>📸 Subir fotos desde tu celular 📱⬆️</h3>
+                <!-- 📸 SUBIR FOTOS CON COMPRESIÓN AUTOMÁTICA -->
+                <h3>📸 Subir fotos desde tu celular 📱⬆️ <span style="color:#22c55e; font-size:0.85rem;">(comprimidas automáticamente)</span></h3>
                 <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
-                <p class="instruccion">✅ Toca "Elegir archivos" → selecciona fotos de tu galería → se suben solas ☁️</p>
+                <p class="instruccion">✅ Toca "Elegir archivos" → selecciona fotos → se comprimen solas ☁️</p>
+                <p class="info-tamano">💡 Las fotos se reducen automáticamente para caber en Firebase ✅</p>
                 <div class="barra-progreso" id="barraSubida" style="display:none;">
                     <div class="progreso" id="progreso"></div>
                 </div>
                 
                 <!-- 📸 O PEGAR ENLACES DE IMÁGENES -->
-                <h3>🔗 O pegar enlaces de fotos</h3>
-                <input type="text" id="imagenUrl" placeholder="Pega el enlace de una imagen">
+                <h3>🔗 O pegar enlaces de fotos (¡recomendado! pesa 0 bytes ✅)</h3>
+                <input type="text" id="imagenUrl" placeholder="Pega el enlace de una imagen (ej: desde Imgur, Google Fotos)">
                 <button class="btn-amarillo" style="width:auto; padding:0.6rem 1.2rem; margin:0.3rem 0;" onclick="agregarImagen()">➕ Agregar por enlace</button>
                 
                 <!-- 📸 VISTA PREVIA DE TODAS LAS FOTOS -->
@@ -163,7 +165,7 @@
       document.getElementById('pantallaClave').classList.add('oculto');
       document.getElementById('panelControl').classList.remove('oculto');
       cargarDesdeNube();
-      mostrarMensaje("✅ ¡Bienvenido! Sube fotos directo desde tu celular 📱", "exito");
+      mostrarMensaje("✅ ¡Bienvenido! Las fotos se comprimen automáticamente 📉", "exito");
     } else {
       mostrarMensaje("❌ Clave incorrecta", "aviso");
     }
@@ -181,11 +183,41 @@
     caja.textContent = texto;
     caja.className = `mensaje ${tipo}`;
     caja.classList.remove('oculto');
-    setTimeout(() => caja.classList.add('oculto'), 4000);
+    setTimeout(() => caja.classList.add('oculto'), 5000);
   }
 
-  // 📱📸 PROCESAR FOTOS SUBIDAS DESDE EL CELULAR — ¡LA MAGIA OCURRE AQUÍ! ⚡
-  window.procesarFotos = function(event) {
+  // 📉✨ COMPRIMIR FOTO ANTES DE GUARDAR — ¡LA SOLUCIÓN CLAVE!
+  function comprimirImagen(urlBase64, calidad = 0.7, maxAncho = 800) {
+    return new Promise((resolver) => {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let ancho = img.width;
+        let alto = img.height;
+
+        // 📏 Reducir tamaño si es muy grande
+        if (ancho > maxAncho) {
+          const proporcion = maxAncho / ancho;
+          ancho = maxAncho;
+          alto = Math.round(alto * proporcion);
+        }
+
+        canvas.width = ancho;
+        canvas.height = alto;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, ancho, alto);
+        
+        // 📉 Convertir a JPEG con calidad reducida → pesa mucho menos ✅
+        const resultado = canvas.toDataURL('image/jpeg', calidad);
+        resolver(resultado);
+      };
+      img.src = urlBase64;
+    });
+  }
+
+  // 📱📸 PROCESAR Y COMPRIMIR FOTOS — ¡MAGIA! ⚡
+  window.procesarFotos = async function(event) {
     const archivos = event.target.files;
     if (!archivos || archivos.length === 0) return;
 
@@ -195,43 +227,56 @@
 
     let procesadas = 0;
     const total = archivos.length;
+    const MAX_TAMANO_FINAL = 800 * 1024; // 800 KB — deja margen de seguridad ✅
 
     for (let i = 0; i < archivos.length; i++) {
       const archivo = archivos[i];
       
-      // ✅ Convertir la foto a una URL que funciona en internet
+      // 📖 Leer la foto original
       const lector = new FileReader();
       
-      lector.onload = function(e) {
-        const urlBase64 = e.target.result;
-        imagenes.push(urlBase64);
+      lector.onload = async function(e) {
+        const urlOriginal = e.target.result;
+        
+        // 📉 COMPRIMIRLA automáticamente ✅
+        let urlComprimida = await comprimirImagen(urlOriginal, 0.7, 800);
+        
+        // 🔍 Si sigue pesando mucho, comprimir MÁS fuerte
+        while (urlComprimida.length > MAX_TAMANO_FINAL) {
+          mostrarMensaje(`⚠️ Comprimiendo más la foto ${i+1}...`, "aviso");
+          urlComprimida = await comprimirImagen(urlOriginal, 0.5, 600);
+          if (urlComprimida.length <= MAX_TAMANO_FINAL) break;
+          urlComprimida = await comprimirImagen(urlOriginal, 0.35, 500);
+          break;
+        }
+        
+        imagenes.push(urlComprimida);
         procesadas++;
         
-        // 📊 Actualizar barra de progreso
+        // 📊 Actualizar barra
         const porcentaje = Math.round((procesadas / total) * 100);
         progreso.style.width = porcentaje + "%";
         
-        // 📸 Actualizar vista previa
+        // 📸 Vista previa
         renderizarVistaImagenes();
         
-        // ✅ Cuando terminó todo
+        // ✅ Terminó todo
         if (procesadas === total) {
           setTimeout(() => {
             barra.style.display = "none";
             progreso.style.width = "0%";
           }, 1000);
-          mostrarMensaje(`✅ ${total} foto(s) cargada(s) perfectamente 📸`, "exito");
+          mostrarMensaje(`✅ ${total} foto(s) comprimida(s) y lista(s) 📸 (más ligeras ✅)`, "exito");
         }
       };
       
       lector.readAsDataURL(archivo);
     }
     
-    // Limpiar el input para poder subir más fotos después
     event.target.value = "";
   };
 
-  // 🔗 Agregar imagen por enlace
+  // 🔗 Agregar imagen por enlace — ¡LA MEJOR OPCIÓN PORQUE PESA 0 BYTES! ✅
   window.agregarImagen = function() {
     const url = document.getElementById('imagenUrl').value.trim();
     if (!url) {
@@ -241,20 +286,20 @@
     imagenes.push(url);
     document.getElementById('imagenUrl').value = "";
     renderizarVistaImagenes();
-    mostrarMensaje(`✅ Imagen agregada (total: ${imagenes.length})`, "exito");
+    mostrarMensaje(`✅ Imagen agregada por enlace 📸 (¡no pesa nada! ✅)`, "exito");
   };
 
-  // ❌ Quitar imagen de la lista
+  // ❌ Quitar imagen
   window.quitarImagen = function(indice) {
     imagenes.splice(indice, 1);
     renderizarVistaImagenes();
   };
 
-  // 📸 Renderizar vista previa de imágenes
+  // 📸 Renderizar vista previa
   function renderizarVistaImagenes() {
     const contenedor = document.getElementById('vistaImagenes');
     if (imagenes.length === 0) {
-      contenedor.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu galería o pega un enlace arriba.</p>';
+      contenedor.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Sube desde tu galería o pega un enlace.</p>';
       return;
     }
     contenedor.innerHTML = imagenes.map((url, i) => `
@@ -265,7 +310,7 @@
     `).join('');
   }
 
-  // ☁️ Guardar producto completo en la nube
+  // ☁️ Guardar producto en la nube — AHORA SÍ CABE ✅
   window.guardarEnNube = async function() {
     const nombre = document.getElementById('nombre').value.trim();
     const descripcion = document.getElementById('descripcion').value.trim();
@@ -275,6 +320,15 @@
     if (!nombre || !precio) {
       mostrarMensaje("⚠️ Escribe el nombre y el precio", "aviso");
       return;
+    }
+
+    // 📊 Calcular tamaño total para advertir
+    let tamanoTotal = imagenes.reduce((sum, img) => sum + img.length, 0);
+    const LIMITE_SEGURO = 900 * 1024; // 900 KB de margen ✅
+    
+    if (tamanoTotal > LIMITE_SEGURO) {
+      mostrarMensaje(`⚠️ Las fotos pesan mucho (${Math.round(tamanoTotal/1024)} KB). Intenta con menos fotos o usa enlaces 🔗`, "aviso");
+      // Continúa igual, pero avisa
     }
 
     try {
@@ -300,7 +354,11 @@
       
       await cargarDesdeNube();
     } catch (error) {
-      mostrarMensaje("❌ Error: " + error.message, "error");
+      if (error.message.includes("exceeds the maximum allowed size")) {
+        mostrarMensaje("❌ ¡Las fotos pesan DEMASIADO! Usa MENOS fotos o pega ENLACES de internet 🔗 (opción recomendada ✅)", "error");
+      } else {
+        mostrarMensaje("❌ Error: " + error.message, "error");
+      }
     }
   };
 
