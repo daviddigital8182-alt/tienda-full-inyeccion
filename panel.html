@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔐 Panel - Full Inyección</title>
+    <!-- 📸 LIBRERÍA DE RECORTE PROFESIONAL ✂️ -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    
     <style>
         * {margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
         body {background:#0f172a; color:#f8fafc; min-height:100vh;}
@@ -23,11 +27,13 @@
         .btn-rojo {background:#ef4444; color:white;}
         .btn-nube {background:#3b82f6; color:white;}
         .btn-gris {background:#64748b; color:white;}
+        .btn-azul {background:#0ea5e9; color:white;}
         .btn-amarillo:hover {background:#fbbf24;}
         .btn-verde:hover {background:#16a34a;}
         .btn-rojo:hover {background:#dc2626;}
         .btn-nube:hover {background:#2563eb;}
         .btn-gris:hover {background:#475569;}
+        .btn-azul:hover {background:#0284c7;}
         
         .producto-item {background:#334155; padding:1rem; border-radius:8px; margin:0.8rem 0; border-left:4px solid #f59e0b;}
         .oculto {display:none !important;}
@@ -50,8 +56,8 @@
         .barra-progreso {width:100%; height:8px; background:#334155; border-radius:4px; margin:0.5rem 0; overflow:hidden;}
         .progreso {height:100%; background:linear-gradient(90deg, #25d363, #f59e0b); width:0%; transition:width 0.3s; border-radius:4px;}
         
-        .modal-fondo {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1rem;}
-        .modal-contenido {background:#1e293b; border-radius:16px; padding:1.2rem; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; border:2px solid #f59e0b;}
+        .modal-fondo {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1rem;}
+        .modal-contenido {background:#1e293b; border-radius:16px; padding:1.2rem; max-width:580px; width:100%; max-height:95vh; overflow-y:auto; border:2px solid #f59e0b;}
         .modal-contenido h2 {text-align:center; margin-top:0; font-size:1.3rem;}
         .fila-botones {display:flex; gap:0.8rem; margin-top:1.2rem;}
         .fila-botones button {flex:1;}
@@ -64,6 +70,18 @@
         .numero-fotos {font-size:1.2rem; font-weight:bold; color:#f59e0b;}
         .info-formato {font-size:0.8rem; color:#22c55e; margin-top:0.3rem;}
         .aviso-limite {background:rgba(245,158,11,0.15); border:1px solid #f59e0b; padding:0.6rem; border-radius:6px; margin:0.8rem 0; font-size:0.9rem; color:#fbbf24;}
+        
+        /* ✂️ MODAL DE RECORTE */
+        .recorte-contenedor {max-width:100%; max-height:50vh; background:#000; border-radius:8px; overflow:hidden; margin:1rem 0;}
+        .recorte-imagen {max-width:100%; display:block;}
+        .recorte-controles {display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.8rem 0; justify-content:center;}
+        .recorte-controles button {width:auto; padding:0.5rem 0.9rem; font-size:0.9rem;}
+        .btn-recorte {background:#0ea5e9; color:white; width:auto; padding:0.6rem 1rem;}
+        .btn-recorte:hover {background:#0284c7;}
+        .recorte-proporciones {display:flex; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap;}
+        .btn-proporcion {padding:0.4rem 0.8rem; font-size:0.85rem; width:auto;}
+        .btn-proporcion.activo {background:#f59e0b; color:#000;}
+        .recorte-titulo {text-align:center; color:#f59e0b; margin-bottom:0.5rem; font-size:1.1rem;}
     </style>
 </head>
 <body>
@@ -85,7 +103,7 @@
     <div id="panelControl" class="oculto">
         <header>
             <h1>🏍️ FULL INYECCIÓN — PANEL</h1>
-            <p class="subtitulo">📸 FOTOS NÍTIDAS GARANTIZADAS • Hasta 20 por producto • SIN NEGRAS ✨</p>
+            <p class="subtitulo">✂️ RECORTAR FOTOS ANTES DE SUBIR • Hasta 20 por producto • Nítidas ✨</p>
             <div id="estadoNube" class="estado-nube desconectado">⏳ Conectando a la nube...</div>
             <button class="btn-rojo" style="width:auto; padding:0.5rem 1rem; margin-top:0.5rem;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </header>
@@ -105,9 +123,9 @@
                     <span class="numero-fotos" id="numeroFotos">0 / 20</span>
                 </div>
                 
-                <input type="file" id="subirFoto" accept="image/*" multiple onchange="procesarFotos(event)">
-                <p class="instruccion">✅ Formatos: JPG, PNG, WebP, GIF, BMP 📁</p>
-                <p class="info-formato">🔧 Método directo optimizado → ¡NUNCA salen negras! ✨</p>
+                <input type="file" id="subirFoto" accept="image/*" onchange="abrirRecorte(event)">
+                <p class="instruccion">✅ Toca arriba para elegir y recortar cada foto ✂️</p>
+                <p class="info-formato">📐 Recorta con precisión antes de guardar • JPG, PNG, WebP 📁</p>
                 
                 <div class="barra-progreso" id="barraSubida" style="display:none;">
                     <div class="progreso" id="progreso"></div>
@@ -118,7 +136,7 @@
                 </div>
                 
                 <div class="lista-imagenes" id="vistaImagenes">
-                    <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivos" y selecciona todas las que quieras 📁</p>
+                    <p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivo" y recorta cada una ✂️📸</p>
                 </div>
 
                 <h3>🎬 Videos de YouTube</h3>
@@ -140,6 +158,37 @@
         </div>
     </div>
 
+    <!-- ✂️ MODAL DE RECORTE DE FOTOS -->
+    <div id="modalRecorte" class="modal-fondo oculto">
+        <div class="modal-contenido" style="max-width:600px;">
+            <h2 class="recorte-titulo">✂️ Recortar Foto</h2>
+            
+            <!-- 📐 Proporciones -->
+            <div class="recorte-proporciones">
+                <button class="btn-proporcion btn-gris activo" data-proporcion="NaN">🔓 Libre</button>
+                <button class="btn-proporcion btn-gris" data-proporcion="1">⬜ Cuadrada (1:1)</button>
+                <button class="btn-proporcion btn-gris" data-proporcion="4/3">📸 Estándar (4:3)</button>
+                <button class="btn-proporcion btn-gris" data-proporcion="16/9">📺 Pantalla (16:9)</button>
+                <button class="btn-proporcion btn-gris" data-proporcion="3/4">📱 Vertical (3:4)</button>
+            </div>
+            
+            <!-- 🖼️ Área de recorte -->
+            <div class="recorte-contenedor">
+                <img id="imagenRecorte" class="recorte-imagen" src="" alt="Recortando...">
+            </div>
+            
+            <!-- 🎮 Controles de recorte -->
+            <div class="recorte-controles">
+                <button class="btn-recorte" onclick="rotarRecorte(-90)">↺ -90°</button>
+                <button class="btn-recorte" onclick="rotarRecorte(90)">↻ +90°</button>
+                <button class="btn-recorte" onclick="zoomRecorte(0.1)">🔍 +</button>
+                <button class="btn-recorte" onclick="zoomRecorte(-0.1)">🔍 −</button>
+                <button class="btn-gris" onclick="cerrarRecorte()">❌ Cancelar</button>
+                <button class="btn-verde" onclick="confirmarRecorte()">✅ Guardar Recorte</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modalEditar" class="modal-fondo oculto">
         <div class="modal-contenido">
             <h2>✏️ Editar Producto Completo</h2>
@@ -153,8 +202,8 @@
             <span class="etiqueta">📸 Fotos actuales (<span id="contadorEditarFotos">0</span>):</span>
             <div id="editarFotosLista" class="lista-imagenes"></div>
             
-            <span class="etiqueta">📸 Agregar nuevas fotos:</span>
-            <input type="file" id="editarSubirFoto" accept="image/*" multiple onchange="procesarFotosEditar(event)">
+            <span class="etiqueta">✂️ Agregar nuevas fotos (recortar antes de guardar):</span>
+            <input type="file" id="editarSubirFoto" accept="image/*" onchange="abrirRecorteEditar(event)">
 
             <span class="etiqueta">🎬 Videos actuales (<span id="contadorEditarVideos">0</span>):</span>
             <div id="editarVideosLista" class="lista-imagenes"></div>
@@ -189,14 +238,14 @@
   const CLAVE_SECRETA = "admin123";
   const CLAVE_STORAGE = "fullinyeccion_clave";
 
-  // 🎯 CONFIGURACIÓN BASADA EN INVESTIGACIÓN Y PRUEBAS
+  // 🎯 CONFIGURACIÓN
   const CONFIG = {
-    maxAncho: 720,        // ✅ Equilibrado: nítido + ligero → caben más fotos
-    maxAlto: 960,         // ✅ Mantiene proporción vertical
-    calidad: 0.80,        // ✅ 80% → nítida y pesa poco (~60-100KB por foto)
-    limiteFotos: 20,      // ✅ Hasta 20 fotos por producto
-    limiteAdvertencia: 15, // ⚠️ Avisar a las 15
-    pesoObjetivo: 80 * 1024 // ✅ ~80KB por foto → 20 × 80KB = 1.6MB (optimizado)
+    maxAncho: 720,
+    maxAlto: 960,
+    calidad: 0.85,
+    limiteFotos: 20,
+    limiteAdvertencia: 15,
+    pesoObjetivo: 100 * 1024
   };
 
   let imagenes = [];
@@ -205,6 +254,11 @@
   let productoEditarId = null;
   let editarImagenes = [];
   let editarVideos = [];
+  
+  // ✂️ VARIABLES DEL RECORTADOR
+  let recortador = null;
+  let modoEdicion = false; // false = agregar, true = editar producto
+  let archivoPendiente = null;
 
   document.addEventListener('DOMContentLoaded', () => {
     const estado = document.getElementById('estadoNube');
@@ -212,6 +266,18 @@
       estado.textContent = "✅ Conectado a la Nube ☁️";
       estado.className = "estado-nube conectado";
     }, 500);
+    
+    // 📐 Cambiar proporción de recorte
+    document.querySelectorAll('.btn-proporcion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-proporcion').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        if (recortador) {
+          const prop = btn.dataset.proporcion;
+          recortador.setAspectRatio(prop === "NaN" ? NaN : eval(prop));
+        }
+      });
+    });
   });
 
   window.verificarClave = function() {
@@ -220,7 +286,7 @@
       document.getElementById('pantallaClave').classList.add('oculto');
       document.getElementById('panelControl').classList.remove('oculto');
       cargarDesdeNube();
-      mostrarMensaje("✅ Sistema listo — fotos nítidas garantizadas 📸✨", "exito");
+      mostrarMensaje("✅ Sistema listo — recorta tus fotos antes de subir ✂️📸", "exito");
     } else {
       mostrarMensaje("❌ Clave incorrecta", "aviso");
     }
@@ -245,82 +311,11 @@
     }
   }
 
-  // 🎨 FUNCIÓN PROBADA Y CONFIRMADA — YA NO SALE NEGRA ✅
-  async function optimizarFoto(archivo) {
-    return new Promise((resolver, rechazar) => {
-      // ✅ PASO 1: Leer el archivo
-      const lector = new FileReader();
-      lector.onload = function(e) {
-        const img = new Image();
-        
-        // ✅ PASO 2: Cuando la imagen cargue COMPLETAMENTE
-        img.onload = function() {
-          try {
-            // 📐 Calcular nuevas dimensiones manteniendo proporción
-            let ancho = img.width;
-            let alto = img.height;
-            
-            if (ancho > CONFIG.maxAncho) {
-              const proporcion = CONFIG.maxAncho / ancho;
-              ancho = CONFIG.maxAncho;
-              alto = Math.round(alto * proporcion);
-            }
-            if (alto > CONFIG.maxAlto) {
-              const proporcion = CONFIG.maxAlto / alto;
-              alto = CONFIG.maxAlto;
-              ancho = Math.round(ancho * proporcion);
-            }
-
-            // 🎨 Dibujar en canvas — MÉTODO PROBADO Y CORREGIDO
-            const canvas = document.createElement('canvas');
-            canvas.width = ancho;
-            canvas.height = alto;
-            const ctx = canvas.getContext('2d');
-            
-            // ✅ LIMPIAR ANTES DE DIBUJAR — ¡LA CLAVE PARA QUE NO SALGA NEGRA! 🗝️
-            ctx.clearRect(0, 0, ancho, alto);
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(img, 0, 0, ancho, alto);
-
-            // 📉 Convertir a JPEG con calidad controlada
-            let calidad = CONFIG.calidad;
-            let resultado = canvas.toDataURL('image/jpeg', calidad);
-            
-            // ⚠️ Si pesa mucho, reducir calidad POCO a poco
-            while (resultado.length > CONFIG.pesoObjetivo && calidad > 0.60) {
-              calidad -= 0.05;
-              resultado = canvas.toDataURL('image/jpeg', calidad);
-            }
-
-            // ✅ LIBERAR MEMORIA
-            img.src = "";
-            resolver(resultado);
-          } catch (error) {
-            console.warn("⚠️ Canvas falló, usando directo:", error);
-            // 🛡️ PLAN B: Usar la imagen original directa
-            resolver(e.target.result);
-          }
-        };
-        
-        img.onerror = function() {
-          // 🛡️ PLAN B si la imagen no carga
-          resolver(e.target.result);
-        };
-        
-        img.src = e.target.result;
-      };
-      
-      lector.onerror = () => rechazar(new Error("No se pudo leer el archivo"));
-      lector.readAsDataURL(archivo);
-    });
-  }
-
-  // 📸 PROCESAR FOTOS — MÉTODO PROBADO Y CONFIRMADO ✅
-  window.procesarFotos = async function(event) {
-    const archivos = event.target.files;
-    if (!archivos || archivos.length === 0) return;
-
+  // ✂️ ABRIR MODAL DE RECORTE — AGREGAR FOTO NUEVA
+  window.abrirRecorte = function(event) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+    
     const faltan = CONFIG.limiteFotos - imagenes.length;
     if (faltan <= 0) {
       mostrarMensaje(`⚠️ Ya tienes ${CONFIG.limiteFotos} fotos. Quita algunas antes de agregar más.`, "aviso");
@@ -328,54 +323,45 @@
       return;
     }
 
-    const agregar = Math.min(archivos.length, faltan);
-    if (agregar < archivos.length) {
-      mostrarMensaje(`⚠️ Solo se agregarán ${agregar} fotos (límite de ${CONFIG.limiteFotos})`, "aviso");
-    }
-
-    const barra = document.getElementById('barraSubida');
-    const progreso = document.getElementById('progreso');
-    barra.style.display = "block";
-
-    for (let i = 0; i < agregar; i++) {
-      const archivo = archivos[i];
-      try {
-        const fotoOptimizada = await optimizarFoto(archivo);
-        imagenes.push(fotoOptimizada);
-        
-        const porcentaje = Math.round(((i + 1) / agregar) * 100);
-        progreso.style.width = `${porcentaje}%`;
-        
-        actualizarContador();
-        renderizarVistaImagenes();
-      } catch (err) {
-        console.error("❌ Error procesando:", err);
-        mostrarMensaje(`⚠️ Usando foto ${i+1} sin compresión`, "aviso");
-        // 🛡️ PLAN B: Leer directo sin canvas
-        const lector = new FileReader();
-        lector.onload = function(e) {
-          imagenes.push(e.target.result);
-          actualizarContador();
-          renderizarVistaImagenes();
-        };
-        lector.readAsDataURL(archivo);
-      }
-    }
-
-    setTimeout(() => {
-      barra.style.display = "none";
-      progreso.style.width = "0%";
-      mostrarMensaje(`✅ ${agregar} foto(s) cargada(s) nítidas 📸✨`, "exito");
-    }, 600);
-
+    modoEdicion = false;
+    archivoPendiente = archivo;
+    
+    const lector = new FileReader();
+    lector.onload = function(e) {
+      const img = document.getElementById('imagenRecorte');
+      img.src = e.target.result;
+      
+      document.getElementById('modalRecorte').classList.remove('oculto');
+      
+      // 🚀 Inicializar recortador
+      setTimeout(() => {
+        if (recortador) recortador.destroy();
+        recortador = new Cropper(img, {
+          aspectRatio: NaN, // 🔓 Libre por defecto
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 0.85,
+          restore: false,
+          guides: true,
+          center: true,
+          highlight: true,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+          minCropBoxWidth: 100,
+          minCropBoxHeight: 100
+        });
+      }, 100);
+    };
+    lector.readAsDataURL(archivo);
     event.target.value = "";
   };
 
-  // 📸 PROCESAR FOTOS EN EDICIÓN — MISMO MÉTODO ✅
-  window.procesarFotosEditar = async function(event) {
-    const archivos = event.target.files;
-    if (!archivos || archivos.length === 0) return;
-
+  // ✂️ ABRIR MODAL DE RECORTE — EDITAR PRODUCTO
+  window.abrirRecorteEditar = function(event) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+    
     const faltan = CONFIG.limiteFotos - editarImagenes.length;
     if (faltan <= 0) {
       mostrarMensaje(`⚠️ Límite de ${CONFIG.limiteFotos} fotos alcanzado`, "aviso");
@@ -383,37 +369,123 @@
       return;
     }
 
-    const agregar = Math.min(archivos.length, faltan);
-    for (let i = 0; i < agregar; i++) {
-      const archivo = archivos[i];
-      try {
-        const fotoOptimizada = await optimizarFoto(archivo);
-        editarImagenes.push(fotoOptimizada);
-        renderizarEditarFotos();
-        document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
-      } catch (err) {
-        const lector = new FileReader();
-        lector.onload = function(e) {
-          editarImagenes.push(e.target.result);
-          renderizarEditarFotos();
-          document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
-        };
-        lector.readAsDataURL(archivo);
-      }
-    }
+    modoEdicion = true;
+    archivoPendiente = archivo;
+    
+    const lector = new FileReader();
+    lector.onload = function(e) {
+      const img = document.getElementById('imagenRecorte');
+      img.src = e.target.result;
+      
+      document.getElementById('modalRecorte').classList.remove('oculto');
+      
+      setTimeout(() => {
+        if (recortador) recortador.destroy();
+        recortador = new Cropper(img, {
+          aspectRatio: NaN,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 0.85,
+          restore: false,
+          guides: true,
+          center: true,
+          highlight: true,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+          minCropBoxWidth: 100,
+          minCropBoxHeight: 100
+        });
+      }, 100);
+    };
+    lector.readAsDataURL(archivo);
     event.target.value = "";
   };
 
+  // 🔄 ROTAR IMAGEN EN EL RECORTADOR
+  window.rotarRecorte = function(grados) {
+    if (recortador) recortador.rotate(grados);
+  };
+
+  // 🔍 ZOOM EN EL RECORTADOR
+  window.zoomRecorte = function(factor) {
+    if (recortador) recortador.zoom(factor);
+  };
+
+  // ❌ CERRAR MODAL DE RECORTE SIN GUARDAR
+  window.cerrarRecorte = function() {
+    document.getElementById('modalRecorte').classList.add('oculto');
+    if (recortador) {
+      recortador.destroy();
+      recortador = null;
+    }
+    archivoPendiente = null;
+    mostrarMensaje("✂️ Recorte cancelado", "aviso");
+  };
+
+  // ✅ CONFIRMAR RECORTE Y GUARDAR
+  window.confirmarRecorte = function() {
+    if (!recortador) return;
+    
+    try {
+      // 📸 Obtener la imagen recortada como canvas
+      const canvasRecortado = recortador.getCroppedCanvas({
+        maxWidth: CONFIG.maxAncho,
+        maxHeight: CONFIG.maxAlto,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+      });
+      
+      // 📉 Convertir a JPEG con calidad controlada
+      let imagenBase64 = canvasRecortado.toDataURL('image/jpeg', CONFIG.calidad);
+      
+      // ⚠️ Si pesa mucho, reducir calidad
+      let calidadActual = CONFIG.calidad;
+      while (imagenBase64.length > CONFIG.pesoObjetivo && calidadActual > 0.60) {
+        calidadActual -= 0.05;
+        imagenBase64 = canvasRecortado.toDataURL('image/jpeg', calidadActual);
+      }
+      
+      // ✅ Agregar a la lista correspondiente
+      if (modoEdicion) {
+        editarImagenes.push(imagenBase64);
+        renderizarEditarFotos();
+        document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;
+      } else {
+        imagenes.push(imagenBase64);
+        actualizarContador();
+        renderizarVistaImagenes();
+      }
+      
+      // 🧹 Limpiar y cerrar
+      recortador.destroy();
+      recortador = null;
+      archivoPendiente = null;
+      document.getElementById('modalRecorte').classList.add('oculto');
+      
+      mostrarMensaje("✅ Foto recortada y guardada ✂️📸", "exito");
+      
+    } catch (error) {
+      console.error("❌ Error al recortar:", error);
+      mostrarMensaje("❌ Error al recortar la foto", "error");
+      cerrarRecorte();
+    }
+  };
+
+  // 🗑️ QUITAR IMAGEN
   window.quitarImagen = i => {imagenes.splice(i,1); actualizarContador(); renderizarVistaImagenes();};
   window.quitarImagenEditar = i => {editarImagenes.splice(i,1); renderizarEditarFotos(); document.getElementById('contadorEditarFotos').textContent = editarImagenes.length;};
+  
+  // 🎬 VIDEOS
   window.agregarVideo = () => {const u=document.getElementById('videoUrl').value.trim();if(!u)return;videos.push(u);document.getElementById('videoUrl').value='';renderizarVistaVideos();mostrarMensaje(`✅ Video agregado 🎬 (total: ${videos.length})`,"exito");};
   window.agregarVideoEditar = () => {const u=document.getElementById('editarVideoUrl').value.trim();if(!u)return;editarVideos.push(u);document.getElementById('editarVideoUrl').value='';renderizarEditarVideos();document.getElementById('contadorEditarVideos').textContent = editarVideos.length;mostrarMensaje("✅ Video agregado 🎬","exito");};
   window.quitarVideo = i => {videos.splice(i,1);renderizarVistaVideos();};
   window.quitarVideoEditar = i => {editarVideos.splice(i,1);renderizarEditarVideos();document.getElementById('contadorEditarVideos').textContent = editarVideos.length;};
 
+  // 🎨 RENDERIZAR VISTAS
   function renderizarVistaImagenes() {
     const c=document.getElementById('vistaImagenes');
-    c.innerHTML=imagenes.length?imagenes.map((u,i)=>`<div class="item-imagen"><img src="${u}" class="preview-imagen" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivos" y selecciona todas las que quieras 📁</p>';
+    c.innerHTML=imagenes.length?imagenes.map((u,i)=>`<div class="item-imagen"><img src="${u}" class="preview-imagen" alt="Foto ${i+1}" loading="lazy"><button class="btn-quitar-img" onclick="quitarImagen(${i})">×</button></div>`).join(''):'<p style="color:#64748b; font-size:0.9rem;">Sin fotos aún. Toca "Elegir archivo" y recorta cada una ✂️📸</p>';
   }
   function renderizarVistaVideos() {
     const c=document.getElementById('vistaVideos');
@@ -430,6 +502,7 @@
     document.getElementById('contadorEditarVideos').textContent = editarVideos.length;
   }
 
+  // ☁️ GUARDAR PRODUCTO NUEVO
   window.guardarProductoNuevo=async()=>{
     const n=document.getElementById('nombre').value.trim(),d=document.getElementById('descripcion').value.trim(),p=document.getElementById('precio').value.trim();
     if(!n||!p)return mostrarMensaje("⚠️ Escribe el nombre y el precio","aviso");
@@ -442,7 +515,7 @@
         videos:[...videos]
       };
       await addDoc(collection(db,COLLECTION),datos);
-      mostrarMensaje(`✅ "${n}" guardado con ${imagenes.length} foto(s) nítidas 📸✨`,"exito");
+      mostrarMensaje(`✅ "${n}" guardado con ${imagenes.length} foto(s) recortadas ✂️📸✨`,"exito");
       document.getElementById('nombre').value=document.getElementById('descripcion').value=document.getElementById('precio').value=document.getElementById('videoUrl').value='';
       imagenes=[];videos=[];actualizarContador();renderizarVistaImagenes();renderizarVistaVideos();
       await cargarDesdeNube();
@@ -455,6 +528,7 @@
     }
   };
 
+  // ✏️ EDITAR PRODUCTO
   window.abrirModalEditar=id=>{
     const prod=productos.find(x=>x.id===id);if(!prod)return;
     productoEditarId=id;editarImagenes=[...(prod.imagenes||[])];editarVideos=[...(prod.videos||[])];
@@ -472,10 +546,11 @@
         videos:[...editarVideos]
       };
       await updateDoc(doc(db,COLLECTION,productoEditarId),datos);
-      mostrarMensaje("✅ ¡Producto actualizado completo! 📸🎬","exito");cerrarModalEditar();await cargarDesdeNube();
+      mostrarMensaje("✅ ¡Producto actualizado completo! ✂️📸🎬","exito");cerrarModalEditar();await cargarDesdeNube();
     }catch(e){mostrarMensaje("❌ Error: "+e.message,"error");}
   };
 
+  // 🗑️ ELIMINAR PRODUCTO
   window.eliminarProducto=async id=>{
     if(confirm("⚠️ ¿Eliminar producto completo con todas sus fotos y videos?")){
       await deleteDoc(doc(db,COLLECTION,id));
@@ -483,12 +558,13 @@
     }
   };
 
+  // 📋 CARGAR DESDE LA NUBE
   async function cargarDesdeNube(){
     const l=document.getElementById('listaProductos');
     try{
       const q=await getDocs(collection(db,COLLECTION));productos=[];l.innerHTML='';document.getElementById('contador').textContent=q.size;
       if(q.empty){l.innerHTML='<p style="color:#94a3b8;text-align:center;padding:2rem;">📋 No hay productos aún. Agrega el primero arriba ☝️</p>';return;}
-      q.forEach(d=>{const p=d.data();p.id=d.id;productos.push(p);l.innerHTML+=`<div class="producto-item"><h4 style="color:#f59e0b;">${p.nombre}</h4><p style="color:#cbd5e1;">${p.descripcion||'Sin descripción'}</p><p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p><p style="color:#94a3b8;">📸 ${(p.imagenes||[]).length} foto(s) | 🎬 ${(p.videos||[]).length} video(s)</p><div style="display:flex;gap:0.5rem;margin-top:1rem;"><button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button><button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button></div></div>`;});
+      q.forEach(d=>{const p=d.data();p.id=d.id;productos.push(p);l.innerHTML+=`<div class="producto-item"><h4 style="color:#f59e0b;">${p.nombre}</h4><p style="color:#cbd5e1;">${p.descripcion||'Sin descripción'}</p><p style="color:#22c55e;font-weight:bold;font-size:1.2rem;">$ ${Number(p.precio).toLocaleString('es-CO')} COP</p><p style="color:#94a3b8;">📸 ${(p.imagenes||[]).length} foto(s) recortada(s) | 🎬 ${(p.videos||[]).length} video(s)</p><div style="display:flex;gap:0.5rem;margin-top:1rem;"><button class="btn-amarillo" style="flex:1;" onclick="abrirModalEditar('${p.id}')">✏️ Editar TODO</button><button class="btn-rojo" style="flex:1;" onclick="eliminarProducto('${p.id}')">🗑️ Eliminar</button></div></div>`;});
     }catch(e){l.innerHTML=`<p style="color:#ef4444;text-align:center;padding:2rem;">❌ Error: ${e.message}</p>`;}
   }
 
